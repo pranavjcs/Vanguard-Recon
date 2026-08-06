@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vanguard Recon Pro — Target Scan History</title>
+    <meta name="description" content="Complete historical repository of target website scans and interactive executive report viewer.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <canvas id="bgCanvas"></canvas>
+
+    <div id="toastNotification" class="toast-card">
+        <span id="toastIcon">✓</span>
+        <span id="toastMsg">Action completed successfully</span>
+    </div>
+
+    <!-- Top Tactical Navigation Bar -->
+    <nav class="navbar">
+        <div style="display:flex; align-items:center;">
+            <div class="brand">
+                <div class="brand-icon-wrapper">
+                    <div class="brand-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">VANGUARD RECON</span>
+                    <span class="brand-subtitle">CYBER AUDIT SUITE 3.0 PRO</span>
+                </div>
+            </div>
+            
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">📊 Dashboard</a>
+                <a href="attack.html" class="nav-link">🎯 Attack</a>
+                <a href="profile.html" class="nav-link">👤 Profile</a>
+                <a href="history.html" class="nav-link active">📜 History</a>
+            </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:14px;">
+            <div class="hud-clock mono" id="hudClock">12:00:00 UTC</div>
+            <button id="soundToggleBtn" class="hud-btn" title="Toggle Tactical Audio FX">
+                <span id="soundIcon">🔊</span>
+                <span id="soundText" style="font-size:11px;">AUDIO ON</span>
+            </button>
+
+            <div class="status-badge">
+                <span class="pulse-dot"></span>
+                <span>SYSTEM ONLINE</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Target Scan History Card -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    Target Scan History Log (<span id="historyCountTotal">0</span> Target Audits)
+                </span>
+                <a href="attack.html" class="btn-primary" style="font-size:12px; padding:6px 14px; text-decoration:none;">
+                    + Launch New Target Attack Scan
+                </a>
+            </div>
+
+            <p style="font-size:13.5px; color:var(--text-secondary); margin-bottom:20px; line-height:1.5;">
+                Below is the historical record of target websites audited by Vanguard Recon. Click on any target entry or click <strong>View Report</strong> to load the full executive security audit report.
+            </p>
+
+            <div style="overflow-x:auto;">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Target Host</th>
+                            <th>Resolved IP</th>
+                            <th>Posture Score & Grade</th>
+                            <th>Findings</th>
+                            <th>Scan Timestamp</th>
+                            <th>Audit Report</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <!-- Populated dynamically via app.js -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

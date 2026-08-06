@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vanguard Recon Pro — Executive Security Dashboard</title>
+    <meta name="description" content="Enterprise attack surface reconnaissance dashboard, OWASP security auditor, and automated vulnerability management platform.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <canvas id="bgCanvas"></canvas>
+
+    <div id="toastNotification" class="toast-card">
+        <span id="toastIcon">✓</span>
+        <span id="toastMsg">Action completed successfully</span>
+    </div>
+
+    <!-- Top Tactical Navigation Bar -->
+    <nav class="navbar">
+        <div style="display:flex; align-items:center;">
+            <div class="brand">
+                <div class="brand-icon-wrapper">
+                    <div class="brand-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">VANGUARD RECON</span>
+                    <span class="brand-subtitle">CYBER AUDIT SUITE 3.0 PRO</span>
+                </div>
+            </div>
+            
+            <div class="nav-links">
+                <a href="index.html" class="nav-link active">📊 Dashboard</a>
+                <a href="attack.html" class="nav-link">🎯 Attack</a>
+                <a href="profile.html" class="nav-link">👤 Profile</a>
+                <a href="history.html" class="nav-link">📜 History</a>
+            </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:14px;">
+            <div class="hud-clock mono" id="hudClock">12:00:00 UTC</div>
+            <button id="soundToggleBtn" class="hud-btn" title="Toggle Tactical Audio FX">
+                <span id="soundIcon">🔊</span>
+                <span id="soundText" style="font-size:11px;">AUDIO ON</span>
+            </button>
+
+            <div class="status-badge">
+                <span class="pulse-dot"></span>
+                <span>SYSTEM ONLINE</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Hero Launchpad Card -->
+        <div class="hero-card">
+            <div class="hero-title-row">
+                <h1 class="hero-title">
+                    Executive Cyber Security Dashboard & Overview
+                </h1>
+                <a href="attack.html" class="btn-primary" style="font-size:13.5px; padding:10px 20px; text-decoration:none;">
+                    ⚡ Open Attack Console →
+                </a>
+            </div>
+            <p class="hero-subtitle">
+                Welcome to Vanguard Recon Pro. Monitor real-time security posture metrics, launch automated target assessments in the Attack console, review past target audit reports in History, and manage user profile credentials.
+            </p>
+        </div>
+
+        <!-- Metric Stat Cards Row -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <div id="statScore" class="stat-value">100 / 100</div>
+                    <div class="stat-label">Last Target Score</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(56,189,248,0.1); border-color:rgba(56,189,248,0.2); color:var(--accent-blue);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+                        <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+                        <line x1="6" y1="6" x2="6.01" y2="6"/>
+                        <line x1="6" y1="18" x2="6.01" y2="18"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <div id="statPorts" class="stat-value">0</div>
+                    <div class="stat-label">Open Ports Discovered</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(255,127,80,0.1); border-color:rgba(255,127,80,0.2); color:var(--sev-high);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <div id="statVulns" class="stat-value">0</div>
+                    <div class="stat-label">Vulnerability Findings</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(46,213,115,0.1); border-color:rgba(46,213,115,0.2); color:var(--sev-safe);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <div id="statSsl" class="stat-value">TLSv1.3</div>
+                    <div class="stat-label">SSL / TLS Protocol</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Core Navigation Modules Grid -->
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:24px; margin-bottom:32px;">
+            <div class="card" style="margin-bottom:0;">
+                <div class="card-header">
+                    <span class="card-title">🎯 Attack Console</span>
+                </div>
+                <p style="font-size:13.5px; color:var(--text-secondary); line-height:1.6; margin-bottom:18px;">
+                    Execute multi-threaded TCP port scans, HTTP header security audits, subdomain enumeration, and live CVE threat mapping on any target host.
+                </p>
+                <a href="attack.html" class="btn-secondary" style="width:100%; justify-content:center;">Launch Attack Target Console →</a>
+            </div>
+
+            <div class="card" style="margin-bottom:0;">
+                <div class="card-header">
+                    <span class="card-title">👤 User Profile</span>
+                </div>
+                <p style="font-size:13.5px; color:var(--text-secondary); line-height:1.6; margin-bottom:18px;">
+                    View and update analyst credentials, security clearance rank, organization details, and personal contact information.
+                </p>
+                <a href="profile.html" class="btn-secondary" style="width:100%; justify-content:center;">Manage Personal Profile →</a>
+            </div>
+
+            <div class="card" style="margin-bottom:0;">
+                <div class="card-header">
+                    <span class="card-title">📜 Target History</span>
+                </div>
+                <p style="font-size:13.5px; color:var(--text-secondary); line-height:1.6; margin-bottom:18px;">
+                    View the complete repository of previously scanned target websites. Click any target entry to inspect its executive audit report.
+                </p>
+                <a href="history.html" class="btn-secondary" style="width:100%; justify-content:center;">Inspect Target Scan History →</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

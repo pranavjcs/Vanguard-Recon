@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vanguard Recon Pro — User Profile & Credentials</title>
+    <meta name="description" content="Personal security analyst profile, analyst credentials, organization details, and security clearance settings.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <canvas id="bgCanvas"></canvas>
+
+    <div id="toastNotification" class="toast-card">
+        <span id="toastIcon">✓</span>
+        <span id="toastMsg">Action completed successfully</span>
+    </div>
+
+    <!-- Top Tactical Navigation Bar -->
+    <nav class="navbar">
+        <div style="display:flex; align-items:center;">
+            <div class="brand">
+                <div class="brand-icon-wrapper">
+                    <div class="brand-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">VANGUARD RECON</span>
+                    <span class="brand-subtitle">CYBER AUDIT SUITE 3.0 PRO</span>
+                </div>
+            </div>
+            
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">📊 Dashboard</a>
+                <a href="attack.html" class="nav-link">🎯 Attack</a>
+                <a href="profile.html" class="nav-link active">👤 Profile</a>
+                <a href="history.html" class="nav-link">📜 History</a>
+            </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:14px;">
+            <div class="hud-clock mono" id="hudClock">12:00:00 UTC</div>
+            <button id="soundToggleBtn" class="hud-btn" title="Toggle Tactical Audio FX">
+                <span id="soundIcon">🔊</span>
+                <span id="soundText" style="font-size:11px;">AUDIO ON</span>
+            </button>
+
+            <div class="status-badge">
+                <span class="pulse-dot"></span>
+                <span>SYSTEM ONLINE</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="profile-grid">
+            <!-- Left Column: User Card -->
+            <div>
+                <div class="card profile-avatar-box">
+                    <div class="profile-avatar">AM</div>
+                    <h2 id="profDisplayName" style="font-family:'Outfit', sans-serif; font-size:22px; font-weight:800; color:var(--text-primary);">
+                        Alex Mercer
+                    </h2>
+                    <div id="profDisplayRole" style="font-size:13px; color:var(--accent-cyan); font-weight:700; margin-top:4px;">
+                        Senior Cyber Security Analyst
+                    </div>
+                    <div style="margin-top:14px; display:inline-block; background:rgba(22, 163, 74, 0.1); border:1px solid rgba(22, 163, 74, 0.3); color:var(--sev-safe); padding:4px 12px; border-radius:20px; font-size:11.5px; font-weight:800;">
+                        CLEARANCE: LEVEL 5 (PRO)
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">🔐 Security Credentials</span>
+                    </div>
+                    <ul class="info-list">
+                        <li class="info-item">
+                            <span class="info-label">Analyst ID</span>
+                            <span class="info-val mono">VG-8902-SEC</span>
+                        </li>
+                        <li class="info-item">
+                            <span class="info-label">License Key</span>
+                            <span class="info-val mono">PRO-VANGUARD-2026</span>
+                        </li>
+                        <li class="info-item">
+                            <span class="info-label">Multi-Factor Auth</span>
+                            <span class="info-val" style="color:var(--sev-safe); font-weight:700;">ACTIVE (FIDO2)</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right Column: Profile Edit Form -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">👤 Personal & Analyst Information</span>
+                    </div>
+
+                    <form id="profileForm" style="display:flex; flex-direction:column; gap:20px;">
+                        <div>
+                            <label style="font-size:13px; font-weight:700; color:var(--text-primary); display:block; margin-bottom:8px;">Full Name</label>
+                            <input type="text" id="profName" class="scan-input" value="Alex Mercer" style="padding:12px 16px;">
+                        </div>
+
+                        <div>
+                            <label style="font-size:13px; font-weight:700; color:var(--text-primary); display:block; margin-bottom:8px;">Security Designation / Role</label>
+                            <input type="text" id="profRole" class="scan-input" value="Senior Cyber Security Analyst" style="padding:12px 16px;">
+                        </div>
+
+                        <div>
+                            <label style="font-size:13px; font-weight:700; color:var(--text-primary); display:block; margin-bottom:8px;">Email Address</label>
+                            <input type="email" id="profEmail" class="scan-input" value="alex.mercer@vanguard-cyber.io" style="padding:12px 16px;">
+                        </div>
+
+                        <div>
+                            <label style="font-size:13px; font-weight:700; color:var(--text-primary); display:block; margin-bottom:8px;">Organization / Division</label>
+                            <input type="text" id="profOrg" class="scan-input" value="Vanguard Cyber Security Operations" style="padding:12px 16px;">
+                        </div>
+
+                        <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+                            <button type="submit" class="btn-primary" style="padding:14px 28px; font-size:14px;">
+                                Save Profile Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
