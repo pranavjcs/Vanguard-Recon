@@ -8,44 +8,44 @@ import re
 REQUIRED_SECURITY_HEADERS = {
     "Strict-Transport-Security": {
         "description": "Enforces HTTPS connections and mitigates SSL stripping and MITM attacks.",
-        "severity": "HIGH",
-        "score_impact": 15
+        "severity": "MEDIUM",
+        "score_impact": 5
     },
     "Content-Security-Policy": {
         "description": "Mitigates Cross-Site Scripting (XSS), data injection, and unauthorized frame embedding.",
-        "severity": "HIGH",
-        "score_impact": 20
+        "severity": "MEDIUM",
+        "score_impact": 6
     },
     "X-Frame-Options": {
         "description": "Prevents Clickjacking attacks by restricting page framing.",
-        "severity": "MEDIUM",
-        "score_impact": 10
+        "severity": "LOW",
+        "score_impact": 4
     },
     "X-Content-Type-Options": {
         "description": "Prevents MIME-type sniffing vulnerabilities on served static resources.",
-        "severity": "MEDIUM",
-        "score_impact": 10
+        "severity": "LOW",
+        "score_impact": 4
     },
     "Referrer-Policy": {
         "description": "Controls referrer information leaked in HTTP requests across origin requests.",
         "severity": "LOW",
-        "score_impact": 5
+        "score_impact": 3
     },
     "Permissions-Policy": {
         "description": "Restricts browser feature APIs (camera, microphone, geolocation, payment).",
         "severity": "LOW",
-        "score_impact": 5
+        "score_impact": 3
     }
 }
 
 SENSITIVE_FILES = [
-    {"path": "/.env", "name": "Environment Credentials Config", "severity": "CRITICAL"},
-    {"path": "/.git/HEAD", "name": "Git Repository Source Metadata", "severity": "CRITICAL"},
-    {"path": "/wp-config.php.bak", "name": "WordPress DB Config Backup", "severity": "HIGH"},
-    {"path": "/config.json", "name": "Application Configuration File", "severity": "HIGH"},
-    {"path": "/server-status", "name": "Apache Server Diagnostics Page", "severity": "MEDIUM"},
-    {"path": "/api/v1/docs", "name": "Swagger API Documentation", "severity": "LOW"},
-    {"path": "/admin", "name": "Administrative Login Portal", "severity": "MEDIUM"}
+    {"path": "/.env", "name": "Environment Credentials Config", "severity": "CRITICAL", "content_check": lambda b: b"=" in b and b"<html" not in b.lower()},
+    {"path": "/.git/HEAD", "name": "Git Repository Source Metadata", "severity": "CRITICAL", "content_check": lambda b: b"ref: refs/" in b or (len(b.strip()) == 40 and b"<html" not in b.lower())},
+    {"path": "/wp-config.php.bak", "name": "WordPress DB Config Backup", "severity": "HIGH", "content_check": lambda b: b"DB_PASSWORD" in b or b"<?php" in b},
+    {"path": "/config.json", "name": "Application Configuration File", "severity": "HIGH", "content_check": lambda b: b"{" in b and b"<html" not in b.lower()},
+    {"path": "/server-status", "name": "Apache Server Diagnostics Page", "severity": "MEDIUM", "content_check": lambda b: b"Apache Server Status" in b or b"Server Version" in b},
+    {"path": "/api/v1/docs", "name": "Swagger API Documentation", "severity": "LOW", "content_check": lambda b: b"swagger" in b.lower() or b"openapi" in b.lower()},
+    {"path": "/admin", "name": "Administrative Login Portal", "severity": "LOW", "content_check": lambda b: True}
 ]
 
 PUBLIC_INDEXED_FILES = [
@@ -181,24 +181,26 @@ def audit_http_headers(target_url):
 
     req = urllib.request.Request(
         target_url,
-        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 VanguardRecon/3.0"}
+        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"}
     )
 
     try:
         with urllib.request.urlopen(req, timeout=6.0, context=ctx) as response:
-            resp_headers = {k.title(): v for k, v in response.headers.items()}
+            # Create lowercase lookup map for headers
+            raw_headers = {k.lower(): v for k, v in response.headers.items()}
             try:
                 html_body = response.read(15000).decode('utf-8', errors='ignore')
             except Exception:
                 html_body = ""
 
             for header, info in REQUIRED_SECURITY_HEADERS.items():
-                match_val = resp_headers.get(header.title())
+                hdr_lower = header.lower()
+                match_val = raw_headers.get(hdr_lower)
                 
-                # Special check for CSP report-only mode or strict policies
+                # Special check for CSP report-only mode
                 if header == "Content-Security-Policy" and not match_val:
-                    if "Content-Security-Policy-Report-Only" in resp_headers:
-                        match_val = resp_headers["Content-Security-Policy-Report-Only"] + " (Report-Only Mode)"
+                    if "content-security-policy-report-only" in raw_headers:
+                        match_val = raw_headers["content-security-policy-report-only"] + " (Report-Only Mode)"
 
                 if match_val:
                     headers_found[header] = match_val
@@ -210,20 +212,23 @@ def audit_http_headers(target_url):
                         "score_impact": info["score_impact"]
                     })
 
-            if "Server" in resp_headers:
+            server_val = raw_headers.get("server", "")
+            if server_val and any(char.isdigit() for char in server_val):
                 info_leakage.append({
                     "header": "Server",
-                    "value": resp_headers["Server"],
-                    "risk": "Reveals web server signature and version details."
-                })
-            if "X-Powered-By" in resp_headers:
-                info_leakage.append({
-                    "header": "X-Powered-By",
-                    "value": resp_headers["X-Powered-By"],
-                    "risk": "Exposes backend application framework (PHP/Express/ASP.NET)."
+                    "value": server_val,
+                    "risk": f"Discloses exact web server software version ({server_val})."
                 })
 
-            tech_stack = detect_tech_stack(resp_headers, html_body)
+            powered_by = raw_headers.get("x-powered-by", "")
+            if powered_by:
+                info_leakage.append({
+                    "header": "X-Powered-By",
+                    "value": powered_by,
+                    "risk": f"Exposes backend application framework ({powered_by})."
+                })
+
+            tech_stack = detect_tech_stack(raw_headers, html_body)
 
             return {
                 "success": True,
@@ -236,15 +241,29 @@ def audit_http_headers(target_url):
             }
 
     except urllib.error.HTTPError as e:
-        resp_headers = {k.title(): v for k, v in e.headers.items()}
-        tech_stack = detect_tech_stack(resp_headers, "")
+        raw_headers = {k.lower(): v for k, v in e.headers.items()}
+        tech_stack = detect_tech_stack(raw_headers, "")
+        
+        for header, info in REQUIRED_SECURITY_HEADERS.items():
+            hdr_lower = header.lower()
+            match_val = raw_headers.get(hdr_lower)
+            if match_val:
+                headers_found[header] = match_val
+            else:
+                missing_headers.append({
+                    "header": header,
+                    "description": info["description"],
+                    "severity": info["severity"],
+                    "score_impact": info["score_impact"]
+                })
+
         return {
             "success": True,
             "target_url": target_url,
             "status_code": e.code,
-            "headers_found": resp_headers,
-            "missing_headers": [],
-            "info_leakage": [],
+            "headers_found": headers_found,
+            "missing_headers": missing_headers,
+            "info_leakage": info_leakage,
             "tech_stack": tech_stack or ["Standard Web Server"]
         }
     except Exception as e:
@@ -258,9 +277,9 @@ def audit_http_headers(target_url):
 def detect_tech_stack(headers, html_body):
     """Detect technologies, CMS, and web frameworks."""
     stack = []
-    server = headers.get("Server", "").lower()
-    powered_by = headers.get("X-Powered-By", "").lower()
-    alt_svc = headers.get("Alt-Svc", "").lower()
+    server = headers.get("server", "").lower()
+    powered_by = headers.get("x-powered-by", "").lower()
+    alt_svc = headers.get("alt-svc", "").lower()
 
     if "gws" in server or "google" in server:
         stack.append("Google Web Server (GWS)")
@@ -294,26 +313,29 @@ def check_single_sensitive_file(base_url, item, ctx):
     full_url = base_url + item["path"]
     req = urllib.request.Request(
         full_url,
-        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) VanguardRecon/3.0"}
+        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"}
     )
     try:
-        with urllib.request.urlopen(req, timeout=1.5, context=ctx) as response:
+        with urllib.request.urlopen(req, timeout=1.8, context=ctx) as response:
             if response.status == 200:
-                return {
-                    "path": item["path"],
-                    "url": full_url,
-                    "name": item["name"],
-                    "severity": item["severity"],
-                    "status": "EXPOSED"
-                }
+                body_chunk = response.read(1024)
+                checker = item.get("content_check", lambda b: True)
+                if checker(body_chunk):
+                    return {
+                        "path": item["path"],
+                        "url": full_url,
+                        "name": item["name"],
+                        "severity": item["severity"],
+                        "status": "EXPOSED"
+                    }
     except urllib.error.HTTPError as e:
-        if e.code == 403:
+        if e.code in [401, 403]:
             return {
                 "path": item["path"],
                 "url": full_url,
                 "name": item["name"],
                 "severity": "LOW",
-                "status": "PROTECTED (403 Forbidden)"
+                "status": f"PROTECTED ({e.code} Restricted)"
             }
     except Exception:
         pass
@@ -402,82 +424,176 @@ def evaluate_cve_threats(open_ports, tech_stack):
                 break
     return cve_findings
 
-def evaluate_owasp_risks(header_audit, sensitive_files, open_ports, hostname=""):
-    """Calculate overall security score (0 to 100) and risk grade."""
-    score = 100
+def evaluate_owasp_risks(header_audit, sensitive_files, open_ports, hostname="", ssl_info=None):
+    """
+    Calculate an accurate, balanced 4-pillar security score (0 to 100) and risk grade:
+    - Pillar 1: Transport & SSL/TLS Encryption (25 pts)
+    - Pillar 2: Perimeter & Port Exposure (25 pts)
+    - Pillar 3: Sensitive File & Credential Exposure (30 pts)
+    - Pillar 4: OWASP HTTP Defense Headers (20 pts)
+    """
     vulnerabilities = []
-
-    missing_hdrs = header_audit.get("missing_headers", [])
-    if header_audit.get("success"):
-        for missing in missing_hdrs:
-            score -= missing["score_impact"]
+    
+    # ----------------------------------------------------
+    # PILLAR 1: SSL/TLS & Transport Security (25 Points)
+    # ----------------------------------------------------
+    p1_score = 25
+    if ssl_info:
+        if ssl_info.get("status") == "VALID":
+            # Bonus for TLS 1.3
+            if ssl_info.get("version") == "TLSv1.3":
+                p1_score = 25
+            else:
+                p1_score = 22
+        elif ssl_info.get("status") == "WARNING":
+            p1_score = 10
             vulnerabilities.append({
-                "category": "OWASP Security Headers",
-                "title": f"Missing Header: {missing['header']}",
-                "severity": missing["severity"],
-                "impact": missing["description"],
-                "verification_steps": f"Run 'curl -I {header_audit.get('target_url', 'https://target')}' and confirm '{missing['header']}' is absent from response headers.",
-                "remediation": f"Configure web server to emit '{missing['header']}' in response headers."
+                "category": "SSL/TLS Encryption",
+                "title": "SSL Certificate Warning / Untrusted Issuer",
+                "severity": "HIGH",
+                "impact": ssl_info.get("details", "SSL Certificate has validation warnings."),
+                "verification_steps": f"Run 'openssl s_client -connect {hostname}:443' and review certificate chain.",
+                "remediation": "Deploy a valid, CA-signed SSL/TLS certificate (e.g. Let's Encrypt)."
             })
+        else:
+            p1_score = 5
+            vulnerabilities.append({
+                "category": "SSL/TLS Encryption",
+                "title": "Unencrypted HTTP / Missing SSL",
+                "severity": "HIGH",
+                "impact": "Traffic is unencrypted and vulnerable to eavesdropping and MITM attacks.",
+                "verification_steps": f"Verify if port 443 HTTPS is active on {hostname}.",
+                "remediation": "Install an SSL/TLS certificate and enforce HTTPS redirection."
+            })
+    else:
+        p1_score = 22
 
-        for leak in header_audit.get("info_leakage", []):
-            if "gws" not in leak.get("value", "").lower():
-                score -= 3
-                vulnerabilities.append({
-                    "category": "Information Disclosure",
-                    "title": f"Server Banner Leakage: {leak['header']}",
-                    "severity": "LOW",
-                    "impact": leak["risk"],
-                    "verification_steps": f"Execute 'curl -I {header_audit.get('target_url', 'https://target')}' and observe the exposed '{leak['header']}: {leak['value']}' header.",
-                    "remediation": f"Disable or obscure '{leak['header']}' in web server response configuration."
-                })
+    # ----------------------------------------------------
+    # PILLAR 2: Perimeter & Port Exposure (25 Points)
+    # ----------------------------------------------------
+    p2_score = 25
+    for p in open_ports:
+        port = p.get("port")
+        # Insecure or high-risk exposed database / management ports
+        if port in [6379, 27017, 9200, 1433, 1521, 3306, 5432]:
+            p2_score -= 15
+            vulnerabilities.append({
+                "category": "Perimeter Exposure",
+                "title": f"Database Port Publicly Exposed: {port} ({p.get('service', 'DB')})",
+                "severity": "CRITICAL",
+                "impact": f"Internal database service listening directly on public internet interface.",
+                "verification_steps": f"Test connection: 'nc -zv {hostname} {port}'",
+                "remediation": f"Bind database to localhost (127.0.0.1) or block port {port} using firewall rules."
+            })
+        elif port in [23, 21]:
+            p2_score -= 10
+            vulnerabilities.append({
+                "category": "Perimeter Exposure",
+                "title": f"Unencrypted Protocol Exposed: Port {port} ({p.get('service', 'Legacy')})",
+                "severity": "HIGH",
+                "impact": "Cleartext credentials can be intercepted over the network.",
+                "remediation": f"Disable port {port} and use encrypted alternatives (SSH / SFTP)."
+            })
+        elif port == 3389:
+            p2_score -= 10
+            vulnerabilities.append({
+                "category": "Perimeter Exposure",
+                "title": "RDP Remote Desktop Exposed (Port 3389)",
+                "severity": "HIGH",
+                "impact": "Direct RDP exposes system to BlueKeep exploits and brute-force attempts.",
+                "remediation": "Place RDP behind a VPN or enable Network Level Authentication (NLA)."
+            })
+        elif port == 22:
+            p2_score -= 2
+    p2_score = max(0, min(25, p2_score))
 
+    # ----------------------------------------------------
+    # PILLAR 3: Sensitive File & Credential Disclosure (30 Points)
+    # ----------------------------------------------------
+    p3_score = 30
     for disc in sensitive_files:
-        if disc["status"] == "EXPOSED":
-            if disc["severity"] == "CRITICAL":
-                score -= 25
-            elif disc["severity"] == "HIGH":
-                score -= 15
-            elif disc["severity"] == "MEDIUM":
-                score -= 10
+        if disc.get("status") == "EXPOSED":
+            sev = disc.get("severity", "MEDIUM")
+            if sev == "CRITICAL":
+                p3_score -= 25
+            elif sev == "HIGH":
+                p3_score -= 15
+            else:
+                p3_score -= 8
             
+            file_url = disc.get("url", f"https://{hostname}{disc.get('path', '')}")
             vulnerabilities.append({
                 "category": "Sensitive File Exposure",
                 "title": f"Exposed File: {disc['path']}",
-                "severity": disc["severity"],
+                "severity": sev,
                 "impact": f"{disc['name']} is publicly accessible over HTTP/HTTPS.",
-                "verification_steps": f"Send an HTTP GET request to '{disc['url']}' and verify if status code 200 is returned instead of 403/404.",
-                "remediation": f"Restrict public access to '{disc['path']}' in server access rules."
+                "verification_steps": f"Send HTTP GET request to '{file_url}' and verify response status 200.",
+                "remediation": f"Restrict public access to '{disc['path']}' in web server access rules."
+            })
+    p3_score = max(0, min(30, p3_score))
+
+    # ----------------------------------------------------
+    # PILLAR 4: OWASP HTTP Security Headers (20 Points)
+    # ----------------------------------------------------
+    p4_score = 20
+    missing_hdrs = header_audit.get("missing_headers", [])
+    if header_audit.get("success"):
+        for missing in missing_hdrs:
+            p4_score -= missing.get("score_impact", 3)
+            vulnerabilities.append({
+                "category": "OWASP Security Headers",
+                "title": f"Missing Header: {missing.get('header', 'Security Header')}",
+                "severity": missing.get("severity", "MEDIUM"),
+                "impact": missing.get("description", "Missing recommended security header."),
+                "verification_steps": f"Run 'curl -I {header_audit.get('target_url', 'https://target')}' and verify '{missing.get('header', '')}' is missing.",
+                "remediation": f"Configure web server to add '{missing.get('header', '')}' response header."
             })
 
+        for leak in header_audit.get("info_leakage", []):
+            p4_score -= 2
+            vulnerabilities.append({
+                "category": "Information Disclosure",
+                "title": f"Server Banner Leakage: {leak['header']}",
+                "severity": "LOW",
+                "impact": leak["risk"],
+                "verification_steps": f"Execute 'curl -I {header_audit.get('target_url', 'https://target')}' and check '{leak['header']}' header.",
+                "remediation": f"Disable or hide '{leak['header']}' in web server response configuration."
+            })
+    p4_score = max(0, min(20, p4_score))
+
+    # CVE Threat Intel Deductions
     cve_intel = evaluate_cve_threats(open_ports, header_audit.get("tech_stack", []))
+    cve_deduction = 0
     for cve in cve_intel:
-        score -= 20 if cve["severity"] == "CRITICAL" else 12
+        cve_deduction += 15 if cve["severity"] == "CRITICAL" else 8
         vulnerabilities.append({
             "category": "Threat Intel CVE",
             "title": f"{cve['cve']} — {cve['title']}",
             "severity": cve["severity"],
             "impact": cve["summary"],
-            "verification_steps": f"Inspect installed service version for '{cve['affected']}' against security advisory {cve['cve']}.",
+            "verification_steps": f"Inspect installed service version for '{cve['affected']}' against {cve['cve']}.",
             "remediation": cve["remediation"]
         })
 
-    score = max(0, min(100, score))
+    # Final Normalized Score Calculation
+    total_score = max(0, min(100, (p1_score + p2_score + p3_score + p4_score) - cve_deduction))
+
     grade = "A+"
-    if score < 50: grade = "F"
-    elif score < 65: grade = "D"
-    elif score < 75: grade = "C"
-    elif score < 88: grade = "B"
-    elif score < 95: grade = "A"
+    if total_score < 40: grade = "F"
+    elif total_score < 55: grade = "D"
+    elif total_score < 70: grade = "C"
+    elif total_score < 85: grade = "B"
+    elif total_score < 95: grade = "A"
 
     remediations = generate_remediation_scripts(missing_hdrs, open_ports)
     cli_commands = generate_cli_commands(hostname or "target", open_ports)
 
     return {
-        "score": score,
+        "score": total_score,
         "grade": grade,
         "vulnerabilities": vulnerabilities,
         "cve_intel": cve_intel,
         "remediation_scripts": remediations,
         "cli_commands": cli_commands
     }
+

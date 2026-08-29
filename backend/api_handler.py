@@ -165,7 +165,7 @@ def handle_api_request(method: str, path: str, query_string: str, body_bytes: by
         target_url = f"https://{hostname}" if not target.startswith("http") else target
         header_audit = audit_http_headers(target_url)
         sensitive_disc = scan_sensitive_files(target_url)
-        risk_eval = evaluate_owasp_risks(header_audit, sensitive_disc, open_ports, hostname=hostname)
+        risk_eval = evaluate_owasp_risks(header_audit, sensitive_disc, open_ports, hostname=hostname, ssl_info=ssl_info)
 
         scan_output = {
             "success": True,
