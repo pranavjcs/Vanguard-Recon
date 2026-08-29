@@ -1050,12 +1050,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Load profile data from VanguardAuth or local storage
         function populateProfileUI(user) {
             if (!user) return;
-            const name = user.full_name || user.username || 'Student Developer';
-            const role = user.role || 'Student Web Developer';
-            const email = user.email || 'student@college.edu';
-            const college = user.college || user.organization || 'MMCOE College';
+            const name = user.full_name || user.username || 'User Profile';
+            const role = user.role || 'Security Auditor';
+            const email = user.email || 'user@example.com';
+            const org = user.college || user.organization || '';
 
-            const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'PC';
+            const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'AU';
 
             const profNameInput = document.getElementById('profName');
             const profRoleInput = document.getElementById('profRole');
@@ -1065,17 +1065,26 @@ document.addEventListener('DOMContentLoaded', () => {
             if (profNameInput) profNameInput.value = name;
             if (profRoleInput) profRoleInput.value = role;
             if (profEmailInput) profEmailInput.value = email;
-            if (profOrgInput) profOrgInput.value = college;
+            if (profOrgInput) profOrgInput.value = org;
 
             const nameEl = document.getElementById('profDisplayName');
             const roleEl = document.getElementById('profDisplayRole');
             const initialsEl = document.getElementById('profAvatarInitials');
             const collegeBadgeEl = document.getElementById('profDisplayCollegeBadge');
+            const summaryRoleEl = document.getElementById('profSummaryRole');
 
             if (nameEl) nameEl.innerText = name;
             if (roleEl) roleEl.innerText = role;
             if (initialsEl) initialsEl.innerText = initials;
-            if (collegeBadgeEl) collegeBadgeEl.innerText = `🎓 ${college}`;
+            if (summaryRoleEl) summaryRoleEl.innerText = role;
+            if (collegeBadgeEl) {
+                if (org && org.trim()) {
+                    collegeBadgeEl.style.display = 'inline-block';
+                    collegeBadgeEl.innerText = `🏢 ${org.trim()}`;
+                } else {
+                    collegeBadgeEl.style.display = 'none';
+                }
+            }
         }
 
         const currentUser = typeof VanguardAuth !== 'undefined' ? VanguardAuth.getCurrentUser() : null;

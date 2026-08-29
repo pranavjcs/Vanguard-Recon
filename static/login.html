@@ -190,23 +190,6 @@
         .auth-error-banner.show {
             display: flex;
         }
-
-        .security-badge-footer {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-top: 20px;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .security-badge-footer svg {
-            width: 14px;
-            height: 14px;
-            fill: var(--sev-safe);
-        }
     </style>
 </head>
 <body>
@@ -244,16 +227,16 @@
             <!-- LOGIN FORM -->
             <form id="loginForm" class="auth-form">
                 <div class="form-group">
-                    <label class="form-label" for="loginIdentifier">Analyst Identifier / Email</label>
+                    <label class="form-label" for="loginIdentifier">Username or Email</label>
                     <div class="input-wrapper">
                         <span class="input-icon">👤</span>
-                        <input type="text" id="loginIdentifier" class="auth-input" placeholder="admin or analyst@vanguard.io" required autofocus autocomplete="username">
+                        <input type="text" id="loginIdentifier" class="auth-input" placeholder="Enter username or email" required autofocus autocomplete="username">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="loginPassword">
-                        <span>Access Key / Password</span>
+                        <span>Password</span>
                     </label>
                     <div class="input-wrapper">
                         <span class="input-icon">🔒</span>
@@ -267,11 +250,10 @@
                         <input type="checkbox" id="rememberMe" checked style="accent-color:#09090b;">
                         <span>Keep Session Active</span>
                     </label>
-                    <span style="color:var(--text-muted); font-size:11.5px; font-family:'JetBrains Mono', monospace;">FIDO2 / 2FA READY</span>
                 </div>
 
                 <button type="submit" id="loginSubmitBtn" class="btn-primary" style="width:100%; justify-content:center; padding:13px; font-size:14px; margin-top:8px;">
-                    🔐 Authenticate & Enter Suite
+                    Sign In
                 </button>
             </form>
 
@@ -280,8 +262,8 @@
                 <div class="form-group">
                     <label class="form-label" for="regFullName">Full Name</label>
                     <div class="input-wrapper">
-                        <span class="input-icon">🎖️</span>
-                        <input type="text" id="regFullName" class="auth-input" placeholder="e.g. Jordan Vance">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="regFullName" class="auth-input" placeholder="e.g. Alex Miller">
                     </div>
                 </div>
 
@@ -290,7 +272,7 @@
                         <label class="form-label" for="regUsername">Username</label>
                         <div class="input-wrapper">
                             <span class="input-icon">👤</span>
-                            <input type="text" id="regUsername" class="auth-input" placeholder="jvance" required autocomplete="username">
+                            <input type="text" id="regUsername" class="auth-input" placeholder="username" required autocomplete="username">
                         </div>
                     </div>
 
@@ -298,16 +280,16 @@
                         <label class="form-label" for="regRole">Role / Title</label>
                         <div class="input-wrapper">
                             <span class="input-icon">💼</span>
-                            <input type="text" id="regRole" class="auth-input" placeholder="SOC Analyst">
+                            <input type="text" id="regRole" class="auth-input" placeholder="Security Auditor / Developer">
                         </div>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="regEmail">Work Email</label>
+                    <label class="form-label" for="regEmail">Email Address</label>
                     <div class="input-wrapper">
                         <span class="input-icon">✉️</span>
-                        <input type="email" id="regEmail" class="auth-input" placeholder="analyst@domain.com" required autocomplete="email">
+                        <input type="email" id="regEmail" class="auth-input" placeholder="user@example.com" required autocomplete="email">
                     </div>
                 </div>
 
@@ -315,12 +297,12 @@
                     <label class="form-label" for="regOrg">Organization</label>
                     <div class="input-wrapper">
                         <span class="input-icon">🏢</span>
-                        <input type="text" id="regOrg" class="auth-input" placeholder="Vanguard Red Team / Cyber Ops">
+                        <input type="text" id="regOrg" class="auth-input" placeholder="Organization / Institution">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="regPassword">Master Password (min 6 chars)</label>
+                    <label class="form-label" for="regPassword">Password (min 6 characters)</label>
                     <div class="input-wrapper">
                         <span class="input-icon">🔒</span>
                         <input type="password" id="regPassword" class="auth-input" placeholder="••••••••••••" required minlength="6" autocomplete="new-password">
@@ -329,14 +311,9 @@
                 </div>
 
                 <button type="submit" id="registerSubmitBtn" class="btn-primary" style="width:100%; justify-content:center; padding:13px; font-size:14px; margin-top:8px;">
-                    ⚡ Create Analyst Account & Login
+                    Create Account
                 </button>
             </form>
-
-            <div class="security-badge-footer">
-                <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
-                <span>PBKDF2-HMAC-SHA256 • JWT 256-BIT ENCRYPTION</span>
-            </div>
         </div>
     </div>
 
