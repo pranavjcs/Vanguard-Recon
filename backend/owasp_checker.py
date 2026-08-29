@@ -38,15 +38,34 @@ REQUIRED_SECURITY_HEADERS = {
     }
 }
 
-SENSITIVE_FILES = [
+QUICK_SENSITIVE_FILES = [
     {"path": "/.env", "name": "Environment Credentials Config", "severity": "CRITICAL", "content_check": lambda b: b"=" in b and b"<html" not in b.lower()},
     {"path": "/.git/HEAD", "name": "Git Repository Source Metadata", "severity": "CRITICAL", "content_check": lambda b: b"ref: refs/" in b or (len(b.strip()) == 40 and b"<html" not in b.lower())},
     {"path": "/wp-config.php.bak", "name": "WordPress DB Config Backup", "severity": "HIGH", "content_check": lambda b: b"DB_PASSWORD" in b or b"<?php" in b},
     {"path": "/config.json", "name": "Application Configuration File", "severity": "HIGH", "content_check": lambda b: b"{" in b and b"<html" not in b.lower()},
-    {"path": "/server-status", "name": "Apache Server Diagnostics Page", "severity": "MEDIUM", "content_check": lambda b: b"Apache Server Status" in b or b"Server Version" in b},
-    {"path": "/api/v1/docs", "name": "Swagger API Documentation", "severity": "LOW", "content_check": lambda b: b"swagger" in b.lower() or b"openapi" in b.lower()},
     {"path": "/admin", "name": "Administrative Login Portal", "severity": "LOW", "content_check": lambda b: True}
 ]
+
+FULL_SENSITIVE_FILES = [
+    {"path": "/.env", "name": "Environment Credentials Config", "severity": "CRITICAL", "content_check": lambda b: b"=" in b and b"<html" not in b.lower()},
+    {"path": "/.git/HEAD", "name": "Git Repository Source Metadata", "severity": "CRITICAL", "content_check": lambda b: b"ref: refs/" in b or (len(b.strip()) == 40 and b"<html" not in b.lower())},
+    {"path": "/wp-config.php.bak", "name": "WordPress DB Config Backup", "severity": "HIGH", "content_check": lambda b: b"DB_PASSWORD" in b or b"<?php" in b},
+    {"path": "/config.json", "name": "Application Configuration File", "severity": "HIGH", "content_check": lambda b: b"{" in b and b"<html" not in b.lower()},
+    {"path": "/.aws/credentials", "name": "AWS Cloud IAM Credentials", "severity": "CRITICAL", "content_check": lambda b: b"aws_access_key_id" in b.lower() or b"[default]" in b},
+    {"path": "/.dockerenv", "name": "Docker Container Signature", "severity": "MEDIUM", "content_check": lambda b: True},
+    {"path": "/phpinfo.php", "name": "PHP Diagnostic Info Page", "severity": "HIGH", "content_check": lambda b: b"PHP Version" in b or b"phpinfo()" in b},
+    {"path": "/.DS_Store", "name": "macOS Directory Index Leak", "severity": "LOW", "content_check": lambda b: b"Bud1" in b or len(b) > 10},
+    {"path": "/backup.sql", "name": "Raw SQL Database Dump", "severity": "CRITICAL", "content_check": lambda b: b"CREATE TABLE" in b or b"INSERT INTO" in b},
+    {"path": "/backup.zip", "name": "Full Application Code Backup", "severity": "CRITICAL", "content_check": lambda b: b.startswith(b"PK")},
+    {"path": "/server-status", "name": "Apache Server Diagnostics Page", "severity": "MEDIUM", "content_check": lambda b: b"Apache Server Status" in b or b"Server Version" in b},
+    {"path": "/api/v1/docs", "name": "Swagger API Documentation", "severity": "LOW", "content_check": lambda b: b"swagger" in b.lower() or b"openapi" in b.lower()},
+    {"path": "/.htaccess", "name": "Apache Access Control Config", "severity": "HIGH", "content_check": lambda b: b"RewriteEngine" in b or b"Order allow,deny" in b},
+    {"path": "/.gitlab-ci.yml", "name": "CI/CD Pipeline Workflow Config", "severity": "MEDIUM", "content_check": lambda b: b"stages:" in b or b"image:" in b},
+    {"path": "/web.config", "name": "IIS ASP.NET Application Config", "severity": "HIGH", "content_check": lambda b: b"<configuration>" in b},
+    {"path": "/admin", "name": "Administrative Login Portal", "severity": "LOW", "content_check": lambda b: True}
+]
+
+SENSITIVE_FILES = FULL_SENSITIVE_FILES
 
 PUBLIC_INDEXED_FILES = [
     {"path": "/robots.txt", "name": "Robots Crawling Policy"},
@@ -165,14 +184,16 @@ def search_cve_db(query):
             results.append(cve)
     return results
 
-def audit_http_headers(target_url):
-    """Audit HTTP security headers for presence and recommendations."""
+def audit_http_headers(target_url, scan_mode="quick"):
+    """Audit HTTP security headers, cookies, and CORS policies."""
     if not target_url.startswith("http://") and not target_url.startswith("https://"):
         target_url = "https://" + target_url
 
     headers_found = {}
     missing_headers = []
     info_leakage = []
+    cookie_findings = []
+    cors_findings = []
     html_body = ""
 
     ctx = ssl.create_default_context()
@@ -186,7 +207,6 @@ def audit_http_headers(target_url):
 
     try:
         with urllib.request.urlopen(req, timeout=6.0, context=ctx) as response:
-            # Create lowercase lookup map for headers
             raw_headers = {k.lower(): v for k, v in response.headers.items()}
             try:
                 html_body = response.read(15000).decode('utf-8', errors='ignore')
@@ -212,6 +232,7 @@ def audit_http_headers(target_url):
                         "score_impact": info["score_impact"]
                     })
 
+            # Server Version Disclosure
             server_val = raw_headers.get("server", "")
             if server_val and any(char.isdigit() for char in server_val):
                 info_leakage.append({
@@ -228,6 +249,47 @@ def audit_http_headers(target_url):
                     "risk": f"Exposes backend application framework ({powered_by})."
                 })
 
+            # Deep Mode: Cookie Security & CORS Analysis
+            if scan_mode == "full":
+                cookies = response.headers.get_all('Set-Cookie') if hasattr(response.headers, 'get_all') else []
+                if not cookies and "set-cookie" in raw_headers:
+                    cookies = [raw_headers["set-cookie"]]
+
+                for cookie_str in cookies:
+                    cookie_name = cookie_str.split(';')[0].split('=')[0].strip()
+                    c_lower = cookie_str.lower()
+                    if "httponly" not in c_lower:
+                        cookie_findings.append({
+                            "cookie": cookie_name,
+                            "issue": "Missing 'HttpOnly' flag",
+                            "severity": "MEDIUM",
+                            "impact": "Cookie is accessible via client-side JavaScript, increasing XSS session theft vulnerability."
+                        })
+                    if "secure" not in c_lower and target_url.startswith("https"):
+                        cookie_findings.append({
+                            "cookie": cookie_name,
+                            "issue": "Missing 'Secure' flag",
+                            "severity": "MEDIUM",
+                            "impact": "Cookie can be transmitted over unencrypted HTTP connections in cleartext."
+                        })
+                    if "samesite" not in c_lower:
+                        cookie_findings.append({
+                            "cookie": cookie_name,
+                            "issue": "Missing 'SameSite' attribute",
+                            "severity": "LOW",
+                            "impact": "Cookie lacks explicit Cross-Site Request Forgery (CSRF) protection."
+                        })
+
+                # CORS Analysis
+                cors_origin = raw_headers.get("access-control-allow-origin", "")
+                cors_cred = raw_headers.get("access-control-allow-credentials", "").lower()
+                if cors_origin == "*" and cors_cred == "true":
+                    cors_findings.append({
+                        "issue": "Permissive Wildcard CORS with Credentials",
+                        "severity": "HIGH",
+                        "impact": "Insecure CORS configuration allows arbitrary origins to make credentialed requests."
+                    })
+
             tech_stack = detect_tech_stack(raw_headers, html_body)
 
             return {
@@ -237,6 +299,8 @@ def audit_http_headers(target_url):
                 "headers_found": headers_found,
                 "missing_headers": missing_headers,
                 "info_leakage": info_leakage,
+                "cookie_findings": cookie_findings,
+                "cors_findings": cors_findings,
                 "tech_stack": tech_stack
             }
 
@@ -264,6 +328,8 @@ def audit_http_headers(target_url):
             "headers_found": headers_found,
             "missing_headers": missing_headers,
             "info_leakage": info_leakage,
+            "cookie_findings": [],
+            "cors_findings": [],
             "tech_stack": tech_stack or ["Standard Web Server"]
         }
     except Exception as e:
@@ -341,8 +407,8 @@ def check_single_sensitive_file(base_url, item, ctx):
         pass
     return None
 
-def scan_sensitive_files(base_url):
-    """Check for exposed sensitive files or directories concurrently."""
+def scan_sensitive_files(base_url, scan_mode="quick"):
+    """Check for exposed sensitive files tailored to Quick vs Full depth."""
     base_url = base_url.rstrip("/")
     if not base_url.startswith("http://") and not base_url.startswith("https://"):
         base_url = "https://" + base_url
@@ -352,8 +418,11 @@ def scan_sensitive_files(base_url):
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
-        futures = [executor.submit(check_single_sensitive_file, base_url, item, ctx) for item in SENSITIVE_FILES]
+    file_list = FULL_SENSITIVE_FILES if scan_mode == "full" else QUICK_SENSITIVE_FILES
+    max_workers = 12 if scan_mode == "full" else 6
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(check_single_sensitive_file, base_url, item, ctx) for item in file_list]
         for future in concurrent.futures.as_completed(futures):
             res = future.result()
             if res:
@@ -424,13 +493,11 @@ def evaluate_cve_threats(open_ports, tech_stack):
                 break
     return cve_findings
 
-def evaluate_owasp_risks(header_audit, sensitive_files, open_ports, hostname="", ssl_info=None):
+def evaluate_owasp_risks(header_audit, sensitive_files, open_ports, hostname="", ssl_info=None, scan_mode="quick"):
     """
-    Calculate an accurate, balanced 4-pillar security score (0 to 100) and risk grade:
-    - Pillar 1: Transport & SSL/TLS Encryption (25 pts)
-    - Pillar 2: Perimeter & Port Exposure (25 pts)
-    - Pillar 3: Sensitive File & Credential Exposure (30 pts)
-    - Pillar 4: OWASP HTTP Defense Headers (20 pts)
+    Calculate an accurate, dynamic 4-pillar security score (0 to 100) and risk grade:
+    - Quick Scan Mode: Focuses on perimeter attack surface, SSL encryption, and primary headers.
+    - Full Audit Mode: Comprehensive evaluation including deep ports, deep sensitive files, cookie security flags, and CORS configurations.
     """
     vulnerabilities = []
     
@@ -440,7 +507,6 @@ def evaluate_owasp_risks(header_audit, sensitive_files, open_ports, hostname="",
     p1_score = 25
     if ssl_info:
         if ssl_info.get("status") == "VALID":
-            # Bonus for TLS 1.3
             if ssl_info.get("version") == "TLSv1.3":
                 p1_score = 25
             else:
@@ -474,14 +540,13 @@ def evaluate_owasp_risks(header_audit, sensitive_files, open_ports, hostname="",
     p2_score = 25
     for p in open_ports:
         port = p.get("port")
-        # Insecure or high-risk exposed database / management ports
-        if port in [6379, 27017, 9200, 1433, 1521, 3306, 5432]:
+        if port in [6379, 27017, 9200, 1433, 1521, 3306, 5432, 2375, 11211]:
             p2_score -= 15
             vulnerabilities.append({
                 "category": "Perimeter Exposure",
-                "title": f"Database Port Publicly Exposed: {port} ({p.get('service', 'DB')})",
+                "title": f"Critical Service/Database Port Publicly Exposed: {port} ({p.get('service', 'Service')})",
                 "severity": "CRITICAL",
-                "impact": f"Internal database service listening directly on public internet interface.",
+                "impact": f"Internal database/daemon service listening directly on public internet interface.",
                 "verification_steps": f"Test connection: 'nc -zv {hostname} {port}'",
                 "remediation": f"Bind database to localhost (127.0.0.1) or block port {port} using firewall rules."
             })
@@ -494,14 +559,23 @@ def evaluate_owasp_risks(header_audit, sensitive_files, open_ports, hostname="",
                 "impact": "Cleartext credentials can be intercepted over the network.",
                 "remediation": f"Disable port {port} and use encrypted alternatives (SSH / SFTP)."
             })
-        elif port == 3389:
+        elif port in [3389, 5900]:
             p2_score -= 10
             vulnerabilities.append({
                 "category": "Perimeter Exposure",
-                "title": "RDP Remote Desktop Exposed (Port 3389)",
+                "title": f"Remote Desktop Protocol Exposed (Port {port})",
                 "severity": "HIGH",
-                "impact": "Direct RDP exposes system to BlueKeep exploits and brute-force attempts.",
-                "remediation": "Place RDP behind a VPN or enable Network Level Authentication (NLA)."
+                "impact": "Direct remote access exposes system to brute-force and credential stuffing attacks.",
+                "remediation": "Place remote desktop behind a VPN or enable multi-factor authentication."
+            })
+        elif port in [2082, 2086]:
+            p2_score -= 5
+            vulnerabilities.append({
+                "category": "Perimeter Exposure",
+                "title": f"Unencrypted Hosting Control Panel: Port {port}",
+                "severity": "MEDIUM",
+                "impact": "Unencrypted cPanel/WHM management interface exposed.",
+                "remediation": f"Use SSL-encrypted ports 2083 or 2087 instead."
             })
         elif port == 22:
             p2_score -= 2
@@ -533,7 +607,7 @@ def evaluate_owasp_risks(header_audit, sensitive_files, open_ports, hostname="",
     p3_score = max(0, min(30, p3_score))
 
     # ----------------------------------------------------
-    # PILLAR 4: OWASP HTTP Security Headers (20 Points)
+    # PILLAR 4: OWASP HTTP Security Headers & Deep Audit (20 Points)
     # ----------------------------------------------------
     p4_score = 20
     missing_hdrs = header_audit.get("missing_headers", [])
@@ -559,6 +633,29 @@ def evaluate_owasp_risks(header_audit, sensitive_files, open_ports, hostname="",
                 "verification_steps": f"Execute 'curl -I {header_audit.get('target_url', 'https://target')}' and check '{leak['header']}' header.",
                 "remediation": f"Disable or hide '{leak['header']}' in web server response configuration."
             })
+
+        # Deep Audit Mode: Cookie & CORS Evaluation
+        if scan_mode == "full":
+            for c_issue in header_audit.get("cookie_findings", []):
+                p4_score -= 2
+                vulnerabilities.append({
+                    "category": "Session & Cookie Security",
+                    "title": f"Cookie Security: {c_issue['cookie']} ({c_issue['issue']})",
+                    "severity": c_issue["severity"],
+                    "impact": c_issue["impact"],
+                    "remediation": f"Configure application to set {c_issue['issue']} on Set-Cookie headers."
+                })
+
+            for cors_issue in header_audit.get("cors_findings", []):
+                p4_score -= 4
+                vulnerabilities.append({
+                    "category": "CORS Policy Security",
+                    "title": f"CORS Misconfiguration: {cors_issue['issue']}",
+                    "severity": cors_issue["severity"],
+                    "impact": cors_issue["impact"],
+                    "remediation": "Restrict Access-Control-Allow-Origin to trusted domains and disallow wildcard with credentials."
+                })
+
     p4_score = max(0, min(20, p4_score))
 
     # CVE Threat Intel Deductions
@@ -591,9 +688,11 @@ def evaluate_owasp_risks(header_audit, sensitive_files, open_ports, hostname="",
     return {
         "score": total_score,
         "grade": grade,
+        "scan_mode": scan_mode,
         "vulnerabilities": vulnerabilities,
         "cve_intel": cve_intel,
         "remediation_scripts": remediations,
         "cli_commands": cli_commands
     }
+
 

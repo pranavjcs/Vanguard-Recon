@@ -158,20 +158,29 @@ def handle_api_request(method: str, path: str, query_string: str, body_bytes: by
         if scan_mode == "quick" and custom_ports is None:
             custom_ports = [80, 443, 22, 21, 25, 3306, 8080, 8443, 3389]
 
-        open_ports = run_port_scan(ip, custom_ports, hostname=hostname)
-        subdomains = enumerate_subdomains(hostname)
+        open_ports = run_port_scan(ip, custom_ports, hostname=hostname, scan_mode=scan_mode)
+        subdomains = enumerate_subdomains(hostname, scan_mode=scan_mode)
         ssl_info = audit_ssl_tls(hostname)
 
         target_url = f"https://{hostname}" if not target.startswith("http") else target
-        header_audit = audit_http_headers(target_url)
-        sensitive_disc = scan_sensitive_files(target_url)
-        risk_eval = evaluate_owasp_risks(header_audit, sensitive_disc, open_ports, hostname=hostname, ssl_info=ssl_info)
+        header_audit = audit_http_headers(target_url, scan_mode=scan_mode)
+        sensitive_disc = scan_sensitive_files(target_url, scan_mode=scan_mode)
+        risk_eval = evaluate_owasp_risks(header_audit, sensitive_disc, open_ports, hostname=hostname, ssl_info=ssl_info, scan_mode=scan_mode)
 
         scan_output = {
             "success": True,
             "target": target,
             "hostname": hostname,
             "ip": ip,
+            "scan_mode": scan_mode,
+            "scan_profile_label": "🛡️ Full Audit (Enterprise Deep Scan)" if scan_mode == "full" else "⚡ Quick Scan (Surface Audit)",
+            "audit_depth": {
+                "ports_checked": len(custom_ports) if custom_ports else (35 if scan_mode == "full" else 10),
+                "subdomains_checked": 38 if scan_mode == "full" else 12,
+                "files_audited": 16 if scan_mode == "full" else 5,
+                "cookie_analysis": scan_mode == "full",
+                "cors_analysis": scan_mode == "full"
+            },
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "score": risk_eval["score"],
             "grade": risk_eval["grade"],

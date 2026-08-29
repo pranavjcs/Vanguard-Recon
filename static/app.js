@@ -349,24 +349,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (progCard) progCard.style.display = 'block';
 
-        logTerminal(`Initiating ${selectedScanMode.toUpperCase()} scan for target: ${target}`, 'TARGET');
+        logTerminal(`Initiating ${selectedScanMode === 'full' ? 'ENTERPRISE FULL AUDIT' : 'SURFACE QUICK SCAN'} for target: ${target}`, 'TARGET');
         updateProgress(15, 'Resolving target DNS records & host IP...');
 
+        const isFull = selectedScanMode === 'full';
         try {
             setTimeout(() => {
-                logTerminal(`DNS resolution complete. Auditing TCP ports...`, 'SOCKET');
-                updateProgress(45, 'Scanning active TCP ports & banner grabbing...');
-            }, 600);
+                logTerminal(isFull ? `Auditing 35+ enterprise ports (DBs, SSH, RDP, Redis, Mongo)...` : `Scanning Top 10 perimeter ports...`, 'SOCKET');
+                updateProgress(40, isFull ? 'Scanning 35+ enterprise TCP ports & banners...' : 'Scanning Top 10 TCP ports & banner grabbing...');
+            }, 500);
 
             setTimeout(() => {
-                logTerminal(`Enumerating subdomains and fingerprinting tech stack...`, 'RECON');
-                updateProgress(70, 'Enumerating public subdomains & server signatures...');
-            }, 1400);
+                logTerminal(isFull ? `Deep DNS discovery: Scanning 38 subdomain prefixes & certificates...` : `Enumerating top 12 subdomains and tech stack...`, 'RECON');
+                updateProgress(65, isFull ? 'Enumerating 38 subdomain prefixes...' : 'Enumerating public subdomains...');
+            }, 1200);
 
             setTimeout(() => {
-                logTerminal(`Auditing HTTP security headers, CORS & CVE threat intelligence...`, 'OWASP');
-                updateProgress(90, 'Cross-referencing OWASP rules & CVE advisories...');
-            }, 2200);
+                logTerminal(isFull ? `Auditing 16 sensitive files, Cookie Security flags (HttpOnly/Secure) & CORS policies...` : `Auditing OWASP security headers & common configs...`, 'OWASP');
+                updateProgress(85, isFull ? 'Deep checking 16 sensitive paths & session cookies...' : 'Auditing HTTP security headers...');
+            }, 2000);
 
             const authFetch = typeof VanguardAuth !== 'undefined' ? VanguardAuth.fetchWithAuth : fetch;
             const response = await authFetch('/api/scan', {
@@ -543,9 +544,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const metaHost = document.getElementById('metaHost');
         const metaIp = document.getElementById('metaIp');
+        const metaMode = document.getElementById('metaMode');
         const metaTime = document.getElementById('metaTime');
         if (metaHost) metaHost.innerText = data.hostname;
         if (metaIp) metaIp.innerText = data.ip;
+        if (metaMode) {
+            metaMode.innerText = data.scan_profile_label || (data.scan_mode === 'full' ? '🛡️ Full Audit' : '⚡ Quick Scan');
+            metaMode.style.color = data.scan_mode === 'full' ? 'var(--sev-high)' : 'var(--accent-blue)';
+        }
         if (metaTime) metaTime.innerText = data.timestamp;
 
         // CLI Commands
