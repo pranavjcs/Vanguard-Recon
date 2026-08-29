@@ -1,0 +1,4 @@
+# Vanguard Recon Pro — Python Serverless Dependencies
+# Built using Python Standard Library (zero mandatory external dependencies)
+# Optional enhancements:
+urllib3>=2.0.0

@@ -368,7 +368,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateProgress(90, 'Cross-referencing OWASP rules & CVE advisories...');
             }, 2200);
 
-            const response = await fetch('/api/scan', {
+            const authFetch = typeof VanguardAuth !== 'undefined' ? VanguardAuth.fetchWithAuth : fetch;
+            const response = await authFetch('/api/scan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ target: target, scan_mode: selectedScanMode })
@@ -997,7 +998,8 @@ document.addEventListener('DOMContentLoaded', () => {
         playSound('click');
         try {
             showToast(`Generating report for ${scanData.hostname}...`);
-            const response = await fetch('/api/report', {
+            const authFetch = typeof VanguardAuth !== 'undefined' ? VanguardAuth.fetchWithAuth : fetch;
+            const response = await authFetch('/api/report', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(scanData)
@@ -1036,39 +1038,152 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initProfilePage() {
         const form = document.getElementById('profileForm');
+        const pwdForm = document.getElementById('passwordForm');
         if (!form) return;
 
-        // Load saved profile data if available
-        try {
-            const rawProfile = localStorage.getItem('vanguardProfileData');
-            if (rawProfile) {
-                const profile = JSON.parse(rawProfile);
-                document.getElementById('profName').value = profile.name || 'Alex Mercer';
-                document.getElementById('profRole').value = profile.role || 'Senior Cyber Security Analyst';
-                document.getElementById('profEmail').value = profile.email || 'alex.mercer@vanguard-cyber.io';
-                document.getElementById('profOrg').value = profile.org || 'Vanguard Cyber Operations';
-                document.getElementById('profDisplayName').innerText = profile.name || 'Alex Mercer';
-                document.getElementById('profDisplayRole').innerText = profile.role || 'Senior Cyber Security Analyst';
-            }
-        } catch(e) {}
+        // Load profile data from VanguardAuth or local storage
+        function populateProfileUI(user) {
+            if (!user) return;
+            const name = user.full_name || user.username || 'Student Developer';
+            const role = user.role || 'Student Web Developer';
+            const email = user.email || 'student@college.edu';
+            const college = user.college || user.organization || 'MMCOE College';
 
-        form.addEventListener('submit', (e) => {
+            const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'PC';
+
+            const profNameInput = document.getElementById('profName');
+            const profRoleInput = document.getElementById('profRole');
+            const profEmailInput = document.getElementById('profEmail');
+            const profOrgInput = document.getElementById('profOrg');
+
+            if (profNameInput) profNameInput.value = name;
+            if (profRoleInput) profRoleInput.value = role;
+            if (profEmailInput) profEmailInput.value = email;
+            if (profOrgInput) profOrgInput.value = college;
+
+            const nameEl = document.getElementById('profDisplayName');
+            const roleEl = document.getElementById('profDisplayRole');
+            const initialsEl = document.getElementById('profAvatarInitials');
+            const collegeBadgeEl = document.getElementById('profDisplayCollegeBadge');
+
+            if (nameEl) nameEl.innerText = name;
+            if (roleEl) roleEl.innerText = role;
+            if (initialsEl) initialsEl.innerText = initials;
+            if (collegeBadgeEl) collegeBadgeEl.innerText = `🎓 ${college}`;
+        }
+
+        const currentUser = typeof VanguardAuth !== 'undefined' ? VanguardAuth.getCurrentUser() : null;
+        if (currentUser) {
+            populateProfileUI(currentUser);
+        }
+
+        // Fetch fresh profile from server if authenticated
+        if (typeof VanguardAuth !== 'undefined' && VanguardAuth.isAuthenticated()) {
+            VanguardAuth.fetchWithAuth('/api/auth/me')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.user) {
+                        populateProfileUI(data.user);
+                    }
+                })
+                .catch(() => {});
+        }
+
+        // Save Profile Form
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             playSound('click');
-            const profile = {
-                name: document.getElementById('profName').value,
-                role: document.getElementById('profRole').value,
-                email: document.getElementById('profEmail').value,
-                org: document.getElementById('profOrg').value
+            const saveBtn = document.getElementById('saveProfBtn');
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.innerText = 'Saving...';
+            }
+
+            const updates = {
+                full_name: document.getElementById('profName').value.trim(),
+                role: document.getElementById('profRole').value.trim(),
+                email: document.getElementById('profEmail').value.trim(),
+                organization: document.getElementById('profOrg').value.trim()
             };
 
             try {
-                localStorage.setItem('vanguardProfileData', JSON.stringify(profile));
-                document.getElementById('profDisplayName').innerText = profile.name;
-                document.getElementById('profDisplayRole').innerText = profile.role;
-                showToast('Personal Profile updated successfully!');
-            } catch(e) {}
+                if (typeof VanguardAuth !== 'undefined' && VanguardAuth.isAuthenticated()) {
+                    const res = await VanguardAuth.fetchWithAuth('/api/auth/profile', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updates)
+                    });
+                    const data = await res.json();
+                    if (data.success && data.user) {
+                        const token = VanguardAuth.getAuthToken();
+                        VanguardAuth.setAuthSession(token, data.user);
+                        populateProfileUI(data.user);
+                        showToast('Personal Profile updated on server!');
+                    } else {
+                        showToast(data.error || 'Failed to update profile', false);
+                    }
+                } else {
+                    localStorage.setItem('vanguardProfileData', JSON.stringify(updates));
+                    populateProfileUI(updates);
+                    showToast('Personal Profile updated locally!');
+                }
+            } catch(e) {
+                showToast('Error updating profile: ' + e.message, false);
+            } finally {
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = '💾 Save Profile Changes';
+                }
+            }
         });
+
+        // Change Password Form
+        if (pwdForm) {
+            pwdForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                playSound('click');
+                const oldPwd = document.getElementById('oldPassword').value;
+                const newPwd = document.getElementById('newPassword').value;
+                const confirmPwd = document.getElementById('confirmNewPassword').value;
+
+                if (newPwd !== confirmPwd) {
+                    showToast('New passwords do not match!', false);
+                    return;
+                }
+                if (newPwd.length < 6) {
+                    showToast('New password must be at least 6 characters!', false);
+                    return;
+                }
+
+                const changeBtn = document.getElementById('changePwdBtn');
+                if (changeBtn) {
+                    changeBtn.disabled = true;
+                    changeBtn.innerText = 'Updating...';
+                }
+
+                try {
+                    const res = await VanguardAuth.fetchWithAuth('/api/auth/change-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ old_password: oldPwd, new_password: newPwd })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('Security password updated successfully!');
+                        pwdForm.reset();
+                    } else {
+                        showToast(data.error || 'Failed to update password', false);
+                    }
+                } catch(err) {
+                    showToast('Network error updating password', false);
+                } finally {
+                    if (changeBtn) {
+                        changeBtn.disabled = false;
+                        changeBtn.innerText = '🔒 Update Password';
+                    }
+                }
+            });
+        }
     }
 
     // 3. ANIMATED BLACK SAND GRAIN PARTICLE SYSTEM ON PALE OFF-WHITE CANVAS
@@ -1258,7 +1373,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const loadingMsg = appendMessage('bot', '<em>Thinking & consulting Gemini AI...</em>');
 
             try {
-                const response = await fetch('/api/copilot', {
+                const authFetch = typeof VanguardAuth !== 'undefined' ? VanguardAuth.fetchWithAuth : fetch;
+                const response = await authFetch('/api/copilot', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

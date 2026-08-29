@@ -149,7 +149,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 40px;
+    padding: 14px 32px;
     background: rgba(218, 220, 226, 0.88);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
@@ -158,13 +158,29 @@ body {
     top: 0;
     z-index: 100;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    gap: 20px;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+    flex-shrink: 0;
 }
 
 .nav-links {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-left: 28px;
+    margin-left: 10px;
 }
 
 .nav-link {
@@ -971,6 +987,74 @@ body {
     font-size: 12px;
     margin: 8px 0;
 }
+
+/* Authentication & User Session Navbar Controls */
+.nav-user-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-user-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-subtle);
+    padding: 4px 10px 4px 4px;
+    border-radius: 30px;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: var(--transition-smooth);
+}
+
+.nav-user-badge:hover {
+    background: #fff;
+    border-color: #09090b;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.user-avatar-mini {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #09090b;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Outfit', sans-serif;
+}
+
+.user-name-mini {
+    font-size: 12.5px;
+    font-weight: 700;
+}
+
+.user-clearance-tag {
+    font-size: 10px;
+    font-weight: 800;
+    background: rgba(22, 163, 74, 0.12);
+    color: var(--sev-safe);
+    border: 1px solid rgba(22, 163, 74, 0.3);
+    padding: 1px 6px;
+    border-radius: 12px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.btn-logout {
+    background: rgba(220, 38, 38, 0.06) !important;
+    border-color: rgba(220, 38, 38, 0.2) !important;
+    color: var(--sev-critical) !important;
+}
+
+.btn-logout:hover {
+    background: rgba(220, 38, 38, 0.12) !important;
+    border-color: var(--sev-critical) !important;
+}
+
 
 
 

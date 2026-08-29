@@ -1,0 +1,32 @@
+{
+  "usr_student_01": {
+    "id": "usr_student_01",
+    "username": "student",
+    "email": "student@college.edu",
+    "password_hash": "c2851eca4c93aed14473a07942602833:89844ac58801ad0c10ad5dede7c58a89af4a028f1da85d56ac32d0face2765a4",
+    "full_name": "Student Developer",
+    "college": "Engineering & Technology Institute",
+    "role": "Student Web Developer",
+    "created_at": "2026-01-01 00:00:00"
+  },
+  "usr_d1d458cbcf": {
+    "id": "usr_d1d458cbcf",
+    "username": "pjc",
+    "email": "chavanpranav2006@gmaill.com",
+    "password_hash": "dd632b94e27a0c078ce57312b1602aa9:4c967a61331cecdb43d425df5f8b591674e90d69e127caa05fccc46827690891",
+    "full_name": "Pranav Chavan",
+    "college": "MMCOE College",
+    "role": "Student Developer",
+    "created_at": "2026-08-30 01:22:51"
+  },
+  "usr_1273fbb10a": {
+    "id": "usr_1273fbb10a",
+    "username": "auditor_16dbbe",
+    "email": "auditor_16dbbe@vanguard.test",
+    "password_hash": "078d384ff6d3fa240df55788b538620e:ff40c6877f763cbf299f65994fc7674384f537827a318ff7ff3b25f1c3eb6245",
+    "full_name": "Vanguard Auditor",
+    "college": "College / University",
+    "role": "Student Developer",
+    "created_at": "2026-08-30 02:20:28"
+  }
+}

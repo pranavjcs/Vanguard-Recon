@@ -4,18 +4,38 @@ import urllib.request
 import urllib.error
 
 def get_gemini_api_key():
-    """Retrieve Gemini API Key from environment variable or config.json."""
+    """Retrieve Gemini API Key from environment variable, config.json, or .env."""
     if os.environ.get("GEMINI_API_KEY"):
         return os.environ.get("GEMINI_API_KEY").strip()
     
-    config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config.json")
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    # 1. Check config.json fallback
+    config_path = os.path.join(root_dir, "config.json")
     if os.path.exists(config_path):
         try:
             with open(config_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                return data.get("gemini_api_key", "").strip()
+                key = data.get("gemini_api_key", data.get("GEMINI_API_KEY", "")).strip()
+                if key:
+                    return key
         except Exception:
             pass
+
+    # 2. Check .env fallback
+    env_file = os.path.join(root_dir, ".env")
+    if os.path.exists(env_file):
+        try:
+            with open(env_file, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if "=" in line and not line.startswith("#"):
+                        k, v = line.split("=", 1)
+                        if k.strip() == "GEMINI_API_KEY":
+                            return v.strip().strip('"').strip("'")
+        except Exception:
+            pass
+
     return ""
 
 def query_gemini_assistant(user_query, context=None):

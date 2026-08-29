@@ -1,0 +1,61 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/styles.css",
+      "dest": "static/styles.css"
+    },
+    {
+      "src": "/app.js",
+      "dest": "static/app.js"
+    },
+    {
+      "src": "/auth.js",
+      "dest": "static/auth.js"
+    },
+    {
+      "src": "/(.*\\.(html|js|css|png|jpg|jpeg|svg|ico|json|txt|woff2|ttf))",
+      "dest": "static/$1"
+    },
+    {
+      "src": "/login",
+      "dest": "static/login.html"
+    },
+    {
+      "src": "/attack",
+      "dest": "static/attack.html"
+    },
+    {
+      "src": "/profile",
+      "dest": "static/profile.html"
+    },
+    {
+      "src": "/history",
+      "dest": "static/history.html"
+    },
+    {
+      "src": "/threats",
+      "dest": "static/threats.html"
+    },
+    {
+      "src": "/topology",
+      "dest": "static/topology.html"
+    },
+    {
+      "src": "/hardening",
+      "dest": "static/hardening.html"
+    },
+    {
+      "src": "/",
+      "dest": "static/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "static/$1"
+    }
+  ]
+}

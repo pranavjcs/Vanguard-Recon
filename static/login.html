@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vanguard Recon Pro — Security Analyst Authentication Portal</title>
+    <meta name="description" content="Secure authentication gateway for Vanguard Recon Cyber Security Audit Platform.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+            padding: 36px 32px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: translateY(16px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .auth-brand-icon {
+            width: 52px;
+            height: 52px;
+            background: #09090b;
+            color: #fff;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .auth-brand-icon svg {
+            width: 26px;
+            height: 26px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
+        .auth-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .auth-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            background: rgba(0, 0, 0, 0.06);
+            padding: 4px;
+            border-radius: 10px;
+            margin-bottom: 24px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 10px 0;
+            text-align: center;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            background: transparent;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .auth-tab.active {
+            background: #fff;
+            color: var(--text-primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-align: left;
+        }
+
+        .form-label {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            color: var(--text-muted);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .auth-input {
+            width: 100%;
+            background: #fff;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 12px 14px 12px 38px;
+            font-family: inherit;
+            font-size: 13.5px;
+            color: var(--text-primary);
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        .auth-input:focus {
+            border-color: #09090b;
+            box-shadow: 0 0 0 3px rgba(9, 9, 11, 0.1);
+        }
+
+        .pwd-toggle {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 14px;
+            padding: 4px;
+        }
+
+        .auth-error-banner {
+            display: none;
+            background: rgba(220, 38, 38, 0.08);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            color: var(--sev-critical);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 12.5px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .auth-error-banner.show {
+            display: flex;
+        }
+
+        .security-badge-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 20px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .security-badge-footer svg {
+            width: 14px;
+            height: 14px;
+            fill: var(--sev-safe);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bgCanvas"></canvas>
+
+    <div id="toastNotification" class="toast-card">
+        <span id="toastIcon">✓</span>
+        <span id="toastMsg">Action completed</span>
+    </div>
+
+    <div class="auth-wrapper">
+        <div class="auth-container">
+            <div class="auth-header">
+                <div class="auth-brand-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                </div>
+                <h1 class="auth-title">VANGUARD RECON</h1>
+                <p class="auth-subtitle">Tactical Attack Surface & Vulnerability Management</p>
+            </div>
+
+            <!-- Login / Register Tab switcher -->
+            <div class="auth-tabs">
+                <button type="button" class="auth-tab active" id="tabLoginBtn">Sign In</button>
+                <button type="button" class="auth-tab" id="tabRegisterBtn">Create Account</button>
+            </div>
+
+            <!-- Error Banner -->
+            <div id="authErrorBanner" class="auth-error-banner">
+                <span>⚠️</span>
+                <span id="authErrorMsg">Invalid username or password</span>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label" for="loginIdentifier">Analyst Identifier / Email</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="loginIdentifier" class="auth-input" placeholder="admin or analyst@vanguard.io" required autofocus autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="loginPassword">
+                        <span>Access Key / Password</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="loginPassword" class="auth-input" placeholder="••••••••••••" required autocomplete="current-password">
+                        <button type="button" class="pwd-toggle" id="toggleLoginPwd" title="Show password">👁️</button>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; margin-top:2px;">
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; color:var(--text-secondary); font-weight:600;">
+                        <input type="checkbox" id="rememberMe" checked style="accent-color:#09090b;">
+                        <span>Keep Session Active</span>
+                    </label>
+                    <span style="color:var(--text-muted); font-size:11.5px; font-family:'JetBrains Mono', monospace;">FIDO2 / 2FA READY</span>
+                </div>
+
+                <button type="submit" id="loginSubmitBtn" class="btn-primary" style="width:100%; justify-content:center; padding:13px; font-size:14px; margin-top:8px;">
+                    🔐 Authenticate & Enter Suite
+                </button>
+            </form>
+
+            <!-- REGISTER FORM (Hidden by default) -->
+            <form id="registerForm" class="auth-form" style="display:none;">
+                <div class="form-group">
+                    <label class="form-label" for="regFullName">Full Name</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🎖️</span>
+                        <input type="text" id="regFullName" class="auth-input" placeholder="e.g. Jordan Vance">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                    <div class="form-group">
+                        <label class="form-label" for="regUsername">Username</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">👤</span>
+                            <input type="text" id="regUsername" class="auth-input" placeholder="jvance" required autocomplete="username">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="regRole">Role / Title</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">💼</span>
+                            <input type="text" id="regRole" class="auth-input" placeholder="SOC Analyst">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regEmail">Work Email</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">✉️</span>
+                        <input type="email" id="regEmail" class="auth-input" placeholder="analyst@domain.com" required autocomplete="email">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regOrg">Organization</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🏢</span>
+                        <input type="text" id="regOrg" class="auth-input" placeholder="Vanguard Red Team / Cyber Ops">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regPassword">Master Password (min 6 chars)</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="regPassword" class="auth-input" placeholder="••••••••••••" required minlength="6" autocomplete="new-password">
+                        <button type="button" class="pwd-toggle" id="toggleRegPwd" title="Show password">👁️</button>
+                    </div>
+                </div>
+
+                <button type="submit" id="registerSubmitBtn" class="btn-primary" style="width:100%; justify-content:center; padding:13px; font-size:14px; margin-top:8px;">
+                    ⚡ Create Analyst Account & Login
+                </button>
+            </form>
+
+            <div class="security-badge-footer">
+                <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                <span>PBKDF2-HMAC-SHA256 • JWT 256-BIT ENCRYPTION</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if already authenticated
+            if (VanguardAuth.isAuthenticated()) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Animated background particle canvas
+            const bgCanvas = document.getElementById('bgCanvas');
+            if (bgCanvas) {
+                const ctx = bgCanvas.getContext('2d');
+                let width = bgCanvas.width = window.innerWidth;
+                let height = bgCanvas.height = window.innerHeight;
+                window.addEventListener('resize', () => {
+                    width = bgCanvas.width = window.innerWidth;
+                    height = bgCanvas.height = window.innerHeight;
+                });
+
+                const particles = [];
+                for (let i = 0; i < 120; i++) {
+                    particles.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        vx: (Math.random() - 0.5) * 0.3,
+                        vy: Math.random() * 0.5 + 0.2,
+                        size: Math.random() * 1.5 + 0.5,
+                        alpha: Math.random() * 0.5 + 0.2
+                    });
+                }
+
+                function animate() {
+                    ctx.clearRect(0, 0, width, height);
+                    particles.forEach(p => {
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        if (p.y > height) { p.y = -2; p.x = Math.random() * width; }
+                        if (p.x < 0) p.x = width;
+                        if (p.x > width) p.x = 0;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(20, 20, 25, ${p.alpha})`;
+                        ctx.fill();
+                    });
+                    requestAnimationFrame(animate);
+                }
+                animate();
+            }
+
+            // Tab Switching
+            const tabLoginBtn = document.getElementById('tabLoginBtn');
+            const tabRegisterBtn = document.getElementById('tabRegisterBtn');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const errorBanner = document.getElementById('authErrorBanner');
+            const errorMsg = document.getElementById('authErrorMsg');
+
+            function showError(msg) {
+                errorMsg.innerText = msg;
+                errorBanner.classList.add('show');
+            }
+            function hideError() {
+                errorBanner.classList.remove('show');
+            }
+
+            tabLoginBtn.addEventListener('click', () => {
+                tabLoginBtn.classList.add('active');
+                tabRegisterBtn.classList.remove('active');
+                loginForm.style.display = 'flex';
+                registerForm.style.display = 'none';
+                hideError();
+            });
+
+            tabRegisterBtn.addEventListener('click', () => {
+                tabRegisterBtn.classList.add('active');
+                tabLoginBtn.classList.remove('active');
+                registerForm.style.display = 'flex';
+                loginForm.style.display = 'none';
+                hideError();
+            });
+
+            // Password show/hide toggle
+            function setupPwdToggle(toggleBtnId, inputId) {
+                const btn = document.getElementById(toggleBtnId);
+                const input = document.getElementById(inputId);
+                if (btn && input) {
+                    btn.addEventListener('click', () => {
+                        if (input.type === 'password') {
+                            input.type = 'text';
+                            btn.innerText = '🔒';
+                        } else {
+                            input.type = 'password';
+                            btn.innerText = '👁️';
+                        }
+                    });
+                }
+            }
+            setupPwdToggle('toggleLoginPwd', 'loginPassword');
+            setupPwdToggle('toggleRegPwd', 'regPassword');
+
+            // Helper redirect after login
+            function redirectPostAuth() {
+                const params = new URLSearchParams(window.location.search);
+                const returnUrl = params.get('returnUrl');
+                if (returnUrl && !returnUrl.includes('login.html')) {
+                    window.location.href = returnUrl;
+                } else {
+                    window.location.href = 'index.html';
+                }
+            }
+
+            // Login submission
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                hideError();
+                const identifier = document.getElementById('loginIdentifier').value.trim();
+                const password = document.getElementById('loginPassword').value;
+                const remember = document.getElementById('rememberMe').checked;
+                const submitBtn = document.getElementById('loginSubmitBtn');
+
+                submitBtn.innerText = 'Authenticating...';
+                submitBtn.disabled = true;
+
+                const res = await VanguardAuth.login(identifier, password, remember);
+                submitBtn.disabled = false;
+                submitBtn.innerText = '🔐 Authenticate & Enter Suite';
+
+                if (res.success) {
+                    redirectPostAuth();
+                } else {
+                    showError(res.error || 'Authentication failed. Please verify credentials.');
+                }
+            });
+
+            // Register submission
+            registerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                hideError();
+                const username = document.getElementById('regUsername').value.trim();
+                const email = document.getElementById('regEmail').value.trim();
+                const password = document.getElementById('regPassword').value;
+                const fullName = document.getElementById('regFullName').value.trim();
+                const role = document.getElementById('regRole').value.trim();
+                const org = document.getElementById('regOrg').value.trim();
+                const submitBtn = document.getElementById('registerSubmitBtn');
+
+                submitBtn.innerText = 'Creating Account...';
+                submitBtn.disabled = true;
+
+                const res = await VanguardAuth.register(username, email, password, fullName, role, org);
+                submitBtn.disabled = false;
+                submitBtn.innerText = '⚡ Create Analyst Account & Login';
+
+                if (res.success) {
+                    redirectPostAuth();
+                } else {
+                    showError(res.error || 'Registration failed. Please check form fields.');
+                }
+            });
+
+            // Check if expired param present
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('expired')) {
+                showError('Your security session has expired. Please authenticate again.');
+            }
+        });
+    </script>
+</body>
+</html>

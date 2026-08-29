@@ -29,7 +29,7 @@
 
     <!-- Top Tactical Navigation Bar -->
     <nav class="navbar">
-        <div style="display:flex; align-items:center;">
+        <div class="nav-left">
             <div class="brand">
                 <div class="brand-icon-wrapper">
                     <div class="brand-icon">
@@ -52,7 +52,7 @@
             </div>
         </div>
 
-        <div style="display:flex; align-items:center; gap:14px;">
+        <div class="nav-right" id="navRightSection">
             <div class="hud-clock mono" id="hudClock">12:00:00 UTC</div>
             <button id="soundToggleBtn" class="hud-btn" title="Toggle Tactical Audio FX">
                 <span id="soundIcon">🔊</span>
@@ -450,6 +450,7 @@
         </div>
     </div>
 
+    <script src="auth.js"></script>
     <script src="app.js?v=3.1"></script>
 </body>
 </html>

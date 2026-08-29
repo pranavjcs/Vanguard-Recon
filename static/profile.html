@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vanguard Recon Pro — User Profile & Credentials</title>
-    <meta name="description" content="Personal security analyst profile, analyst credentials, organization details, and security clearance settings.">
+    <title>Vanguard Recon — Student & Developer Profile</title>
+    <meta name="description" content="Personal student developer profile, institution details, and account settings.">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +20,7 @@
 
     <!-- Top Tactical Navigation Bar -->
     <nav class="navbar">
-        <div style="display:flex; align-items:center;">
+        <div class="nav-left">
             <div class="brand">
                 <div class="brand-icon-wrapper">
                     <div class="brand-icon">
@@ -31,19 +31,19 @@
                 </div>
                 <div class="brand-text">
                     <span class="brand-title">VANGUARD RECON</span>
-                    <span class="brand-subtitle">CYBER AUDIT SUITE 3.0 PRO</span>
+                    <span class="brand-subtitle">STUDENT & DEV SECURITY SUITE</span>
                 </div>
             </div>
             
             <div class="nav-links">
                 <a href="index.html" class="nav-link">📊 Dashboard</a>
-                <a href="attack.html" class="nav-link">🎯 Attack</a>
+                <a href="attack.html" class="nav-link">🎯 Audit Website</a>
                 <a href="profile.html" class="nav-link active">👤 Profile</a>
                 <a href="history.html" class="nav-link">📜 History</a>
             </div>
         </div>
 
-        <div style="display:flex; align-items:center; gap:14px;">
+        <div class="nav-right" id="navRightSection">
             <div class="hud-clock mono" id="hudClock">12:00:00 UTC</div>
             <button id="soundToggleBtn" class="hud-btn" title="Toggle Tactical Audio FX">
                 <span id="soundIcon">🔊</span>
@@ -62,70 +62,101 @@
             <!-- Left Column: User Card -->
             <div>
                 <div class="card profile-avatar-box">
-                    <div class="profile-avatar">AM</div>
+                    <div id="profAvatarInitials" class="profile-avatar">PC</div>
                     <h2 id="profDisplayName" style="font-family:'Outfit', sans-serif; font-size:22px; font-weight:800; color:var(--text-primary);">
-                        Alex Mercer
+                        Student Developer
                     </h2>
-                    <div id="profDisplayRole" style="font-size:13px; color:var(--accent-cyan); font-weight:700; margin-top:4px;">
-                        Senior Cyber Security Analyst
+                    <div id="profDisplayRole" style="font-size:13px; color:var(--accent-blue); font-weight:700; margin-top:4px;">
+                        Full-Stack Web Developer
                     </div>
-                    <div style="margin-top:14px; display:inline-block; background:rgba(22, 163, 74, 0.1); border:1px solid rgba(22, 163, 74, 0.3); color:var(--sev-safe); padding:4px 12px; border-radius:20px; font-size:11.5px; font-weight:800;">
-                        CLEARANCE: LEVEL 5 (PRO)
+                    <div id="profDisplayCollegeBadge" style="margin-top:14px; display:inline-block; background:rgba(37, 99, 235, 0.1); border:1px solid rgba(37, 99, 235, 0.3); color:var(--sev-low); padding:4px 12px; border-radius:20px; font-size:11.5px; font-weight:700;">
+                        🎓 MMCOE College
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-header">
-                        <span class="card-title">🔐 Security Credentials</span>
+                        <span class="card-title">ℹ️ Account Summary</span>
                     </div>
                     <ul class="info-list">
                         <li class="info-item">
-                            <span class="info-label">Analyst ID</span>
-                            <span class="info-val mono">VG-8902-SEC</span>
+                            <span class="info-label">Account Status</span>
+                            <span class="info-val" style="color:var(--sev-safe); font-weight:700;">ACTIVE</span>
                         </li>
                         <li class="info-item">
-                            <span class="info-label">License Key</span>
-                            <span class="info-val mono">PRO-VANGUARD-2026</span>
+                            <span class="info-label">Access Level</span>
+                            <span class="info-val" style="font-weight:700;">Student / Project Auditor</span>
                         </li>
                         <li class="info-item">
-                            <span class="info-label">Multi-Factor Auth</span>
-                            <span class="info-val" style="color:var(--sev-safe); font-weight:700;">ACTIVE (FIDO2)</span>
+                            <span class="info-label">Security Session</span>
+                            <span class="info-val mono" style="color:var(--text-muted); font-size:11px;">JWT 256-BIT SECURE</span>
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Right Column: Profile Edit Form -->
-            <div>
+            <!-- Right Column: Profile Edit & Password Change Forms -->
+            <div style="display:flex; flex-direction:column; gap:24px;">
                 <div class="card">
                     <div class="card-header">
-                        <span class="card-title">👤 Personal & Analyst Information</span>
+                        <span class="card-title">👤 Student & Developer Information</span>
                     </div>
 
                     <form id="profileForm" style="display:flex; flex-direction:column; gap:20px;">
                         <div>
                             <label style="font-size:13px; font-weight:700; color:var(--text-primary); display:block; margin-bottom:8px;">Full Name</label>
-                            <input type="text" id="profName" class="scan-input" value="Alex Mercer" style="padding:12px 16px;">
+                            <input type="text" id="profName" class="scan-input" value="Student Developer" style="padding:12px 16px;" required>
                         </div>
 
                         <div>
-                            <label style="font-size:13px; font-weight:700; color:var(--text-primary); display:block; margin-bottom:8px;">Security Designation / Role</label>
-                            <input type="text" id="profRole" class="scan-input" value="Senior Cyber Security Analyst" style="padding:12px 16px;">
+                            <label style="font-size:13px; font-weight:700; color:var(--text-primary); display:block; margin-bottom:8px;">Specialization / Role</label>
+                            <input type="text" id="profRole" class="scan-input" value="Student Web Developer" placeholder="e.g. Full-Stack Developer / CS Student" style="padding:12px 16px;" required>
                         </div>
 
                         <div>
                             <label style="font-size:13px; font-weight:700; color:var(--text-primary); display:block; margin-bottom:8px;">Email Address</label>
-                            <input type="email" id="profEmail" class="scan-input" value="alex.mercer@vanguard-cyber.io" style="padding:12px 16px;">
+                            <input type="email" id="profEmail" class="scan-input" value="student@college.edu" style="padding:12px 16px;" required>
                         </div>
 
                         <div>
-                            <label style="font-size:13px; font-weight:700; color:var(--text-primary); display:block; margin-bottom:8px;">Organization / Division</label>
-                            <input type="text" id="profOrg" class="scan-input" value="Vanguard Cyber Security Operations" style="padding:12px 16px;">
+                            <label style="font-size:13px; font-weight:700; color:var(--text-primary); display:block; margin-bottom:8px;">College / University / School</label>
+                            <input type="text" id="profOrg" class="scan-input" value="MMCOE College" placeholder="e.g. MMCOE College" style="padding:12px 16px;" required>
                         </div>
 
                         <div style="display:flex; justify-content:flex-end; margin-top:10px;">
-                            <button type="submit" class="btn-primary" style="padding:14px 28px; font-size:14px;">
-                                Save Profile Changes
+                            <button type="submit" id="saveProfBtn" class="btn-primary" style="padding:14px 28px; font-size:14px;">
+                                💾 Save Profile Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Password Change Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">🔑 Change Password</span>
+                    </div>
+
+                    <form id="passwordForm" style="display:flex; flex-direction:column; gap:16px;">
+                        <div>
+                            <label style="font-size:13px; font-weight:700; color:var(--text-primary); display:block; margin-bottom:8px;">Current Password</label>
+                            <input type="password" id="oldPassword" class="scan-input" placeholder="••••••••••••" style="padding:12px 16px;" required>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+                            <div>
+                                <label style="font-size:13px; font-weight:700; color:var(--text-primary); display:block; margin-bottom:8px;">New Password</label>
+                                <input type="password" id="newPassword" class="scan-input" placeholder="Min 6 characters" minlength="6" style="padding:12px 16px;" required>
+                            </div>
+                            <div>
+                                <label style="font-size:13px; font-weight:700; color:var(--text-primary); display:block; margin-bottom:8px;">Confirm New Password</label>
+                                <input type="password" id="confirmNewPassword" class="scan-input" placeholder="Re-enter new password" minlength="6" style="padding:12px 16px;" required>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; justify-content:flex-end; margin-top:6px;">
+                            <button type="submit" id="changePwdBtn" class="btn-secondary" style="padding:12px 24px; font-size:13.5px;">
+                                🔒 Update Password
                             </button>
                         </div>
                     </form>
@@ -134,6 +165,7 @@
         </div>
     </div>
 
+    <script src="auth.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
