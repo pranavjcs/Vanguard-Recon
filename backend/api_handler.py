@@ -60,6 +60,28 @@ def handle_api_request(method: str, path: str, query_string: str, body_bytes: by
 
     token = extract_auth_token(headers)
 
+    # Normalize /api/index.py or /api rewrites from Vercel
+    if parsed_path in ["/api/index.py", "/api", "/api/"]:
+        if "__route" in query_params and query_params["__route"]:
+            parsed_path = "/api/" + query_params["__route"][0].lstrip("/")
+        elif "x-matched-path" in headers and headers["x-matched-path"] != "/api/index.py":
+            parsed_path = headers["x-matched-path"].split("?")[0]
+        elif "x-forwarded-uri" in headers and headers["x-forwarded-uri"] != "/api/index.py":
+            parsed_path = headers["x-forwarded-uri"].split("?")[0]
+        elif isinstance(body, dict):
+            if "target" in body:
+                parsed_path = "/api/scan"
+            elif "old_password" in body and "new_password" in body:
+                parsed_path = "/api/auth/change-password"
+            elif "identifier" in body and "password" in body:
+                parsed_path = "/api/auth/login"
+            elif "email" in body and "username" in body and "password" in body:
+                parsed_path = "/api/auth/register"
+            elif "query" in body or "prompt" in body:
+                parsed_path = "/api/copilot"
+            elif "hostname" in body and "score" in body:
+                parsed_path = "/api/report"
+
     # ----------------------------------------------------
     # AUTHENTICATION ENDPOINTS
     # ----------------------------------------------------
