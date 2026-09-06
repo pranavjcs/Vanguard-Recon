@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. Initialize Animated Particle Engine
+    initBlackSandGrainsBackground();
+
     // Check localStorage for saved scan results & scan history list
     const savedScan = localStorage.getItem('vanguardScanData');
     if (savedScan) {
