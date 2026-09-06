@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vanguard Recon Pro — Security Analyst Authentication Portal</title>
-    <meta name="description" content="Secure authentication gateway for Vanguard Recon Cyber Security Audit Platform.">
+    <title>Vanguard Recon — Sign In</title>
+    <meta name="description" content="Authentication gateway for Vanguard Recon Security Assessment Suite.">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
         .auth-wrapper {
             min-height: 100vh;
@@ -23,45 +23,45 @@
 
         .auth-container {
             width: 100%;
-            max-width: 480px;
+            max-width: 460px;
             background: var(--bg-card);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-lg);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
             padding: 36px 32px;
             position: relative;
             overflow: hidden;
-            animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: fadeInScale 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @keyframes fadeInScale {
-            from { opacity: 0; transform: translateY(16px) scale(0.98); }
+            from { opacity: 0; transform: translateY(12px) scale(0.99); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .auth-header {
             text-align: center;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
         }
 
         .auth-brand-icon {
-            width: 52px;
-            height: 52px;
+            width: 48px;
+            height: 48px;
             background: #09090b;
             color: #fff;
-            border-radius: 14px;
+            border-radius: 12px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 14px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            margin-bottom: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
         }
 
         .auth-brand-icon svg {
-            width: 26px;
-            height: 26px;
+            width: 24px;
+            height: 24px;
             fill: none;
             stroke: currentColor;
             stroke-width: 2;
@@ -69,10 +69,10 @@
 
         .auth-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 800;
             color: var(--text-primary);
-            letter-spacing: -0.5px;
+            letter-spacing: -0.3px;
         }
 
         .auth-subtitle {
@@ -91,10 +91,10 @@
 
         .auth-tab {
             flex: 1;
-            padding: 10px 0;
+            padding: 9px 0;
             text-align: center;
             font-size: 13.5px;
-            font-weight: 700;
+            font-weight: 600;
             color: var(--text-secondary);
             background: transparent;
             border: none;
@@ -106,7 +106,7 @@
         .auth-tab.active {
             background: #fff;
             color: var(--text-primary);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
         }
 
         .auth-form {
@@ -124,7 +124,7 @@
 
         .form-label {
             font-size: 12.5px;
-            font-weight: 700;
+            font-weight: 600;
             color: var(--text-primary);
             display: flex;
             justify-content: space-between;
@@ -136,20 +136,12 @@
             align-items: center;
         }
 
-        .input-icon {
-            position: absolute;
-            left: 14px;
-            color: var(--text-muted);
-            font-size: 14px;
-            pointer-events: none;
-        }
-
         .auth-input {
             width: 100%;
             background: #fff;
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-md);
-            padding: 12px 14px 12px 38px;
+            padding: 11px 14px;
             font-family: inherit;
             font-size: 13.5px;
             color: var(--text-primary);
@@ -159,7 +151,7 @@
 
         .auth-input:focus {
             border-color: #09090b;
-            box-shadow: 0 0 0 3px rgba(9, 9, 11, 0.1);
+            box-shadow: 0 0 0 3px rgba(9, 9, 11, 0.08);
         }
 
         .pwd-toggle {
@@ -169,7 +161,8 @@
             border: none;
             cursor: pointer;
             color: var(--text-muted);
-            font-size: 14px;
+            font-size: 12px;
+            font-weight: 600;
             padding: 4px;
         }
 
@@ -193,8 +186,6 @@
     </style>
 </head>
 <body>
-    <canvas id="bgCanvas"></canvas>
-
     <div id="toastNotification" class="toast-card">
         <span id="toastIcon">✓</span>
         <span id="toastMsg">Action completed</span>
@@ -209,7 +200,7 @@
                     </svg>
                 </div>
                 <h1 class="auth-title">VANGUARD RECON</h1>
-                <p class="auth-subtitle">Tactical Attack Surface & Vulnerability Management</p>
+                <p class="auth-subtitle">Security Assessment & Vulnerability Management</p>
             </div>
 
             <!-- Login / Register Tab switcher -->
@@ -220,7 +211,6 @@
 
             <!-- Error Banner -->
             <div id="authErrorBanner" class="auth-error-banner">
-                <span>⚠️</span>
                 <span id="authErrorMsg">Invalid username or password</span>
             </div>
 
@@ -229,7 +219,6 @@
                 <div class="form-group">
                     <label class="form-label" for="loginIdentifier">Username or Email</label>
                     <div class="input-wrapper">
-                        <span class="input-icon">👤</span>
                         <input type="text" id="loginIdentifier" class="auth-input" placeholder="Enter username or email" required autofocus autocomplete="username">
                     </div>
                 </div>
@@ -239,20 +228,19 @@
                         <span>Password</span>
                     </label>
                     <div class="input-wrapper">
-                        <span class="input-icon">🔒</span>
-                        <input type="password" id="loginPassword" class="auth-input" placeholder="••••••••••••" required autocomplete="current-password">
-                        <button type="button" class="pwd-toggle" id="toggleLoginPwd" title="Show password">👁️</button>
+                        <input type="password" id="loginPassword" class="auth-input" placeholder="Enter password" required autocomplete="current-password">
+                        <button type="button" class="pwd-toggle" id="toggleLoginPwd" title="Toggle password visibility">Show</button>
                     </div>
                 </div>
 
                 <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; margin-top:2px;">
-                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; color:var(--text-secondary); font-weight:600;">
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; color:var(--text-secondary); font-weight:500;">
                         <input type="checkbox" id="rememberMe" checked style="accent-color:#09090b;">
-                        <span>Keep Session Active</span>
+                        <span>Remember me</span>
                     </label>
                 </div>
 
-                <button type="submit" id="loginSubmitBtn" class="btn-primary" style="width:100%; justify-content:center; padding:13px; font-size:14px; margin-top:8px;">
+                <button type="submit" id="loginSubmitBtn" class="btn-primary" style="width:100%; justify-content:center; padding:12px; font-size:14px; margin-top:6px;">
                     Sign In
                 </button>
             </form>
@@ -262,7 +250,6 @@
                 <div class="form-group">
                     <label class="form-label" for="regFullName">Full Name</label>
                     <div class="input-wrapper">
-                        <span class="input-icon">👤</span>
                         <input type="text" id="regFullName" class="auth-input" placeholder="e.g. Alex Miller">
                     </div>
                 </div>
@@ -271,7 +258,6 @@
                     <div class="form-group">
                         <label class="form-label" for="regUsername">Username</label>
                         <div class="input-wrapper">
-                            <span class="input-icon">👤</span>
                             <input type="text" id="regUsername" class="auth-input" placeholder="username" required autocomplete="username">
                         </div>
                     </div>
@@ -279,8 +265,7 @@
                     <div class="form-group">
                         <label class="form-label" for="regRole">Role / Title</label>
                         <div class="input-wrapper">
-                            <span class="input-icon">💼</span>
-                            <input type="text" id="regRole" class="auth-input" placeholder="Security Auditor / Developer">
+                            <input type="text" id="regRole" class="auth-input" placeholder="Security Analyst">
                         </div>
                     </div>
                 </div>
@@ -288,7 +273,6 @@
                 <div class="form-group">
                     <label class="form-label" for="regEmail">Email Address</label>
                     <div class="input-wrapper">
-                        <span class="input-icon">✉️</span>
                         <input type="email" id="regEmail" class="auth-input" placeholder="user@example.com" required autocomplete="email">
                     </div>
                 </div>
@@ -296,7 +280,6 @@
                 <div class="form-group">
                     <label class="form-label" for="regOrg">Organization</label>
                     <div class="input-wrapper">
-                        <span class="input-icon">🏢</span>
                         <input type="text" id="regOrg" class="auth-input" placeholder="Organization / Institution">
                     </div>
                 </div>
@@ -304,13 +287,12 @@
                 <div class="form-group">
                     <label class="form-label" for="regPassword">Password (min 6 characters)</label>
                     <div class="input-wrapper">
-                        <span class="input-icon">🔒</span>
-                        <input type="password" id="regPassword" class="auth-input" placeholder="••••••••••••" required minlength="6" autocomplete="new-password">
-                        <button type="button" class="pwd-toggle" id="toggleRegPwd" title="Show password">👁️</button>
+                        <input type="password" id="regPassword" class="auth-input" placeholder="Password" required minlength="6" autocomplete="new-password">
+                        <button type="button" class="pwd-toggle" id="toggleRegPwd" title="Toggle password visibility">Show</button>
                     </div>
                 </div>
 
-                <button type="submit" id="registerSubmitBtn" class="btn-primary" style="width:100%; justify-content:center; padding:13px; font-size:14px; margin-top:8px;">
+                <button type="submit" id="registerSubmitBtn" class="btn-primary" style="width:100%; justify-content:center; padding:12px; font-size:14px; margin-top:6px;">
                     Create Account
                 </button>
             </form>
@@ -325,47 +307,6 @@
             if (VanguardAuth.isAuthenticated()) {
                 window.location.href = 'index.html';
                 return;
-            }
-
-            // Animated background particle canvas
-            const bgCanvas = document.getElementById('bgCanvas');
-            if (bgCanvas) {
-                const ctx = bgCanvas.getContext('2d');
-                let width = bgCanvas.width = window.innerWidth;
-                let height = bgCanvas.height = window.innerHeight;
-                window.addEventListener('resize', () => {
-                    width = bgCanvas.width = window.innerWidth;
-                    height = bgCanvas.height = window.innerHeight;
-                });
-
-                const particles = [];
-                for (let i = 0; i < 120; i++) {
-                    particles.push({
-                        x: Math.random() * width,
-                        y: Math.random() * height,
-                        vx: (Math.random() - 0.5) * 0.3,
-                        vy: Math.random() * 0.5 + 0.2,
-                        size: Math.random() * 1.5 + 0.5,
-                        alpha: Math.random() * 0.5 + 0.2
-                    });
-                }
-
-                function animate() {
-                    ctx.clearRect(0, 0, width, height);
-                    particles.forEach(p => {
-                        p.x += p.vx;
-                        p.y += p.vy;
-                        if (p.y > height) { p.y = -2; p.x = Math.random() * width; }
-                        if (p.x < 0) p.x = width;
-                        if (p.x > width) p.x = 0;
-                        ctx.beginPath();
-                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                        ctx.fillStyle = `rgba(20, 20, 25, ${p.alpha})`;
-                        ctx.fill();
-                    });
-                    requestAnimationFrame(animate);
-                }
-                animate();
             }
 
             // Tab Switching
@@ -408,10 +349,10 @@
                     btn.addEventListener('click', () => {
                         if (input.type === 'password') {
                             input.type = 'text';
-                            btn.innerText = '🔒';
+                            btn.innerText = 'Hide';
                         } else {
                             input.type = 'password';
-                            btn.innerText = '👁️';
+                            btn.innerText = 'Show';
                         }
                     });
                 }
@@ -439,12 +380,12 @@
                 const remember = document.getElementById('rememberMe').checked;
                 const submitBtn = document.getElementById('loginSubmitBtn');
 
-                submitBtn.innerText = 'Authenticating...';
+                submitBtn.innerText = 'Signing in...';
                 submitBtn.disabled = true;
 
                 const res = await VanguardAuth.login(identifier, password, remember);
                 submitBtn.disabled = false;
-                submitBtn.innerText = '🔐 Authenticate & Enter Suite';
+                submitBtn.innerText = 'Sign In';
 
                 if (res.success) {
                     redirectPostAuth();
@@ -470,7 +411,7 @@
 
                 const res = await VanguardAuth.register(username, email, password, fullName, role, org);
                 submitBtn.disabled = false;
-                submitBtn.innerText = '⚡ Create Analyst Account & Login';
+                submitBtn.innerText = 'Create Account';
 
                 if (res.success) {
                     redirectPostAuth();
@@ -482,7 +423,7 @@
             // Check if expired param present
             const params = new URLSearchParams(window.location.search);
             if (params.get('expired')) {
-                showError('Your security session has expired. Please authenticate again.');
+                showError('Your session has expired. Please sign in again.');
             }
         });
     </script>

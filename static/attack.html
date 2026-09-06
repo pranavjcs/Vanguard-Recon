@@ -3,16 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vanguard Recon Pro — Attack Console</title>
-    <meta name="description" content="Centralized Cyber Attack Surface target console, multi-threaded port scanner, vulnerability auditor, and remediation engine.">
+    <title>Vanguard Recon — Security Scanner</title>
+    <meta name="description" content="Attack surface scanner, port discovery, vulnerability auditor, and remediation engine.">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <canvas id="bgCanvas"></canvas>
-
     <div id="toastNotification" class="toast-card">
         <span id="toastIcon">✓</span>
         <span id="toastMsg">Action completed successfully</span>
@@ -27,7 +25,7 @@
         <div id="nodeModalBody" class="node-modal-body"></div>
     </div>
 
-    <!-- Top Tactical Navigation Bar -->
+    <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-left">
             <div class="brand">
@@ -40,35 +38,29 @@
                 </div>
                 <div class="brand-text">
                     <span class="brand-title">VANGUARD RECON</span>
-                    <span class="brand-subtitle">CYBER AUDIT SUITE 3.0 PRO</span>
+                    <span class="brand-subtitle">Security Assessment Suite</span>
                 </div>
             </div>
             
             <div class="nav-links">
-                <a href="index.html" class="nav-link">📊 Dashboard</a>
-                <a href="attack.html" class="nav-link active">🎯 Attack</a>
-                <a href="profile.html" class="nav-link">👤 Profile</a>
-                <a href="history.html" class="nav-link">📜 History</a>
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="attack.html" class="nav-link active">Scanner</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+                <a href="history.html" class="nav-link">History</a>
             </div>
         </div>
 
         <div class="nav-right" id="navRightSection">
-            <div class="hud-clock mono" id="hudClock">12:00:00 UTC</div>
-            <button id="soundToggleBtn" class="hud-btn" title="Toggle Tactical Audio FX">
-                <span id="soundIcon">🔊</span>
-                <span id="soundText" style="font-size:11px;">AUDIO ON</span>
-            </button>
-
             <div class="status-badge">
                 <span class="pulse-dot"></span>
-                <span>SYSTEM ONLINE</span>
+                <span>Operational</span>
             </div>
 
             <!-- Export Group Toolbar -->
             <div id="exportBtnGroup" style="display:none; gap:8px;">
                 <button id="exportJsonBtn" class="btn-secondary" title="Export Raw JSON Data">JSON</button>
                 <button id="exportCsvBtn" class="btn-secondary" title="Export CSV Table">CSV</button>
-                <button id="reportBtn" class="btn-accent">Executive HTML Report</button>
+                <button id="reportBtn" class="btn-accent">Export Report</button>
             </div>
         </div>
     </nav>
@@ -79,22 +71,22 @@
         <div class="hero-card">
             <div class="hero-title-row">
                 <h1 class="hero-title">
-                    Attack Target Console & Reconnaissance Engine
+                    Target Security Scanner
                 </h1>
                 <div class="scan-profile-selector">
-                    <button class="profile-btn active" data-mode="quick" title="Top 10 Essential Ports">⚡ Quick Scan</button>
-                    <button class="profile-btn" data-mode="full" title="Comprehensive 25+ Enterprise Ports">🛡️ Full Audit</button>
+                    <button class="profile-btn active" data-mode="quick" title="Top 10 Essential Ports">Quick Scan</button>
+                    <button class="profile-btn" data-mode="full" title="Comprehensive 25+ Enterprise Ports">Full Audit</button>
                 </div>
             </div>
             <p class="hero-subtitle">
-                Configure attack targets and run real-time multi-threaded TCP port scanning, HTTP security header auditing, SSL/TLS inspection, subdomain enumeration, and OWASP CVE threat intelligence mapping.
+                Configure a target host to run multi-threaded TCP port discovery, security header evaluation, SSL/TLS certificate inspection, and vulnerability mapping.
             </p>
             
             <div class="input-wrapper">
                 <div class="input-container">
-                    <input type="text" id="targetInput" class="scan-input mono" placeholder="Enter target host (e.g. scanme.nmap.org or httpbin.org)" value="scanme.nmap.org">
+                    <input type="text" id="targetInput" class="scan-input mono" placeholder="Enter target host (e.g. scanme.nmap.org or example.com)" value="scanme.nmap.org">
                     <div class="input-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="11" cy="11" r="8"/>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                         </svg>
@@ -104,26 +96,26 @@
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                         <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
                     </svg>
-                    <span>Launch Target Attack Assessment</span>
+                    <span>Start Scan</span>
                 </button>
             </div>
 
             <div class="quick-targets">
-                <span style="font-weight:700; color:var(--accent-cyan); font-size:12px; letter-spacing:0.5px;">PRESET TARGETS:</span>
+                <span style="font-weight:600; color:var(--text-secondary); font-size:12px;">Preset Targets:</span>
                 <span class="target-chip" data-target="scanme.nmap.org">scanme.nmap.org</span>
                 <span class="target-chip" data-target="httpbin.org">httpbin.org</span>
                 <span class="target-chip" data-target="example.com">example.com</span>
                 <span class="target-chip" data-target="github.com">github.com</span>
             </div>
 
-            <!-- Animated Radar Progress Bar -->
+            <!-- Progress Bar -->
             <div id="progressContainer" class="progress-card" style="display:none;">
                 <div class="progress-track">
                     <div id="progressBarFill" class="progress-fill"></div>
                 </div>
                 <div class="progress-info">
-                    <span id="progressText">Initializing scan engine...</span>
-                    <span class="mono" style="font-size:12px; color:var(--accent-cyan);">Multi-Threaded Socket Engine</span>
+                    <span id="progressText">Initializing scan...</span>
+                    <span class="mono" style="font-size:12px; color:var(--text-muted);">Auditing Host</span>
                 </div>
             </div>
         </div>
@@ -138,7 +130,7 @@
                 </div>
                 <div class="stat-content">
                     <div id="statScore" class="stat-value">100 / 100</div>
-                    <div class="stat-label">Security Posture Score</div>
+                    <div class="stat-label">Security Score</div>
                 </div>
             </div>
 
@@ -153,7 +145,7 @@
                 </div>
                 <div class="stat-content">
                     <div id="statPorts" class="stat-value">0</div>
-                    <div class="stat-label">Open Ports Discovered</div>
+                    <div class="stat-label">Open Ports</div>
                 </div>
             </div>
 
@@ -167,7 +159,7 @@
                 </div>
                 <div class="stat-content">
                     <div id="statVulns" class="stat-value">0</div>
-                    <div class="stat-label">OWASP & CVE Findings</div>
+                    <div class="stat-label">Vulnerabilities</div>
                 </div>
             </div>
 
@@ -223,7 +215,7 @@
                         </li>
                         <li class="info-item">
                             <span class="info-label">Audit Profile</span>
-                            <span id="metaMode" class="info-val" style="font-weight:700; color:var(--accent-blue);">⚡ Quick Scan</span>
+                            <span id="metaMode" class="info-val" style="font-weight:600; color:var(--text-primary);">Quick Scan</span>
                         </li>
                         <li class="info-item">
                             <span class="info-label">Scan Timestamp</span>
@@ -241,7 +233,7 @@
                                 <polyline points="2 17 12 22 22 17"/>
                                 <polyline points="2 12 12 17 22 12"/>
                             </svg>
-                            OWASP Security Header Radar
+                            Security Headers
                         </span>
                     </div>
                     <div style="position:relative; width:100%; height:220px; display:flex; justify-content:center; align-items:center;">
@@ -257,13 +249,12 @@
                                 <polyline points="4 17 10 11 4 5"/>
                                 <line x1="12" y1="19" x2="20" y2="19"/>
                             </svg>
-                            Diagnostic Terminal Log
+                            Activity Log
                         </span>
-                        <button id="clearTerminalBtn" class="copy-cmd-btn" style="font-size:11px;">Clear Log</button>
+                        <button id="clearTerminalBtn" class="copy-cmd-btn" style="font-size:11px;">Clear</button>
                     </div>
                     <div id="cyberTerminal" class="terminal-card">
-                        <div class="terminal-line"><span class="terminal-time">[00:00:00]</span> <span class="terminal-prefix">SYSTEM:</span> Vanguard Recon engine online.</div>
-                        <div class="terminal-line"><span class="terminal-time">[00:00:00]</span> <span class="terminal-prefix">READY:</span> Select target domain and launch security sweep.</div>
+                        <div class="terminal-line"><span class="terminal-time">[00:00:00]</span> Ready: Select target host and click Start Scan.</div>
                     </div>
                 </div>
 
@@ -275,15 +266,20 @@
                                 <circle cx="11" cy="11" r="8"/>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                             </svg>
-                            CVE Threat Database Search
+                            CVE Database Search
                         </span>
                     </div>
                     <div class="cve-search-box">
-                        <input type="text" id="cveQueryInput" class="scan-input mono" placeholder="Search CVE (e.g. Log4j, RDP, Redis)..." style="padding:10px 14px 10px 36px; font-size:13px;">
-                        <div class="input-icon" style="left:12px; top:12px;">🔍</div>
+                        <input type="text" id="cveQueryInput" class="scan-input mono" placeholder="Search CVE (e.g. Log4j, RDP, MySQL)..." style="padding:10px 14px 10px 38px; font-size:13px;">
+                        <div class="input-icon" style="left:12px; top:11px;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
+                        </div>
                     </div>
                     <div id="cveSearchResults" class="cve-results-list" style="margin-top:12px; max-height:220px; overflow-y:auto;">
-                        <div style="font-size:12.5px; color:var(--text-muted);">Type a keyword or CVE ID to query threat intelligence.</div>
+                        <div style="font-size:12.5px; color:var(--text-muted);">Enter a keyword or CVE identifier to search vulnerability records.</div>
                     </div>
                 </div>
             </div>
@@ -301,7 +297,7 @@
                                 <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
                                 <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
                             </svg>
-                            Attack Surface Topology Graph (Click Any Node)
+                            Network Topology
                         </span>
                     </div>
                     <div class="topology-box">
@@ -317,11 +313,11 @@
                                 <circle cx="11" cy="11" r="8"/>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                             </svg>
-                            Subdomain Reconnaissance
+                            Discovered Subdomains
                         </span>
                     </div>
                     <div id="subdomainsContainer" class="subdomains-grid">
-                        <div style="color:var(--text-secondary); font-size:14px;">Launch a security scan to enumerate public target subdomains.</div>
+                        <div style="color:var(--text-secondary); font-size:14px;">Run a scan to discover public subdomains.</div>
                     </div>
                 </div>
 
@@ -334,11 +330,11 @@
                                 <path d="M4 4a16 16 0 0 1 16 16"/>
                                 <circle cx="5" cy="19" r="1"/>
                             </svg>
-                            Open Port & Service Enumeration
+                            Open Ports & Services
                         </span>
                     </div>
                     <div id="portsGrid" class="ports-grid">
-                        <div style="color:var(--text-secondary); font-size:14px;">Launch a scan to discover open TCP services and banners.</div>
+                        <div style="color:var(--text-secondary); font-size:14px;">Run a scan to enumerate open TCP ports and service banners.</div>
                     </div>
                 </div>
 
@@ -351,7 +347,7 @@
                                 <line x1="12" y1="9" x2="12" y2="13"/>
                                 <line x1="12" y1="17" x2="12.01" y2="17"/>
                             </svg>
-                            OWASP Findings & CVE Threat Intelligence
+                            Vulnerability Findings
                         </span>
                         <div class="filter-pills">
                             <span class="filter-pill active" data-filter="all">All</span>
@@ -361,11 +357,11 @@
                         </div>
                     </div>
                     <div id="vulnContainer">
-                        <div style="color:var(--text-secondary); font-size:14px;">Launch a security assessment to evaluate HTTP security headers and threat advisories.</div>
+                        <div style="color:var(--text-secondary); font-size:14px;">Run an assessment to evaluate security headers and vulnerability advisories.</div>
                     </div>
                 </div>
 
-                <!-- Google Gemini AI Defensive Security Assistant -->
+                <!-- Remediation Assistant -->
                 <div class="card" id="copilotCard">
                     <div class="card-header">
                         <span class="card-title">
@@ -373,35 +369,34 @@
                                 <circle cx="12" cy="12" r="10"/>
                                 <path d="M12 8v8M8 12h8"/>
                             </svg>
-                            ✨ Gemini Security Assistant
+                            Remediation Assistant
                         </span>
-                        <span class="status-badge" style="background:rgba(56,189,248,0.15); color:var(--accent-blue);">POWERED BY GOOGLE GEMINI AI</span>
                     </div>
                     
                     <!-- Quick Prompt Suggestion Chips -->
                     <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;">
-                        <button class="copilot-chip-btn" data-query="How to fix missing HSTS header?">🛡️ Fix HSTS Header</button>
-                        <button class="copilot-chip-btn" data-query="How to configure strict Content Security Policy (CSP)?">🔒 Configure CSP</button>
-                        <button class="copilot-chip-btn" data-query="How to patch Log4j vulnerability?">⚠️ Log4j Patch</button>
-                        <button class="copilot-chip-btn" data-query="How to configure UFW firewall to close open ports?">🧱 Firewall Rules</button>
+                        <button class="copilot-chip-btn" data-query="How to fix missing HSTS header?">Fix HSTS Header</button>
+                        <button class="copilot-chip-btn" data-query="How to configure strict Content Security Policy (CSP)?">Configure CSP</button>
+                        <button class="copilot-chip-btn" data-query="How to patch Log4j vulnerability?">Patch Log4j</button>
+                        <button class="copilot-chip-btn" data-query="How to configure UFW firewall to close open ports?">Configure Firewall</button>
                     </div>
 
                     <!-- Chat Log Area -->
                     <div id="copilotChatStream" style="max-height:500px; min-height:180px; overflow-y:auto; border:1px solid var(--border-subtle); border-radius:8px; padding:16px; background:rgba(255,255,255,0.7); display:flex; flex-direction:column; gap:12px; margin-bottom:12px;">
                         <div class="copilot-msg bot">
-                            <strong>✨ Vanguard Gemini Assistant:</strong><br>
-                            Hello! I am your AI-powered Security Remediation Assistant. Ask me how to remediate missing headers, harden server configurations, close open ports, or patch security vulnerabilities.
+                            <strong>Remediation Assistant:</strong><br>
+                            Enter a question or select a topic above to view step-by-step remediation instructions, configuration snippets, and verification commands.
                         </div>
                     </div>
 
                     <!-- Interactive Chat Input Bar -->
                     <div style="display:flex; gap:8px;">
-                        <input type="text" id="copilotInput" class="scan-input mono" placeholder="Ask Gemini AI for security remediation advice..." style="padding:10px 14px; font-size:13px; flex:1;">
+                        <input type="text" id="copilotInput" class="scan-input mono" placeholder="Ask for remediation instructions, configurations, or CLI commands..." style="padding:10px 14px; font-size:13px; flex:1;">
                         <button id="sendCopilotBtn" class="btn-primary" style="padding:10px 18px; font-size:13px;">Send</button>
                     </div>
                 </div>
 
-                <!-- CLI Commands Generator -->
+                <!-- Verification Commands -->
                 <div class="card">
                     <div class="card-header">
                         <span class="card-title">
@@ -409,19 +404,19 @@
                                 <polyline points="4 17 10 11 4 5"/>
                                 <line x1="12" y1="19" x2="20" y2="19"/>
                             </svg>
-                            CLI Security Testing Commands
+                            Verification Commands
                         </span>
                     </div>
                     <div class="cli-cmd-grid">
                         <div class="cli-cmd-item">
-                            <div class="cli-cmd-label">Nmap Port & Banner Audit</div>
+                            <div class="cli-cmd-label">Nmap Port & Service Audit</div>
                             <div class="cli-cmd-box">
                                 <code id="cmdNmap" class="mono">nmap -sV -sC -p 80,443,22 scanme.nmap.org</code>
                                 <button class="copy-cmd-btn" data-target="cmdNmap">Copy</button>
                             </div>
                         </div>
                         <div class="cli-cmd-item">
-                            <div class="cli-cmd-label">Curl SSL Header Audit</div>
+                            <div class="cli-cmd-label">Curl Header Inspection</div>
                             <div class="cli-cmd-box">
                                 <code id="cmdCurl" class="mono">curl -I -v https://scanme.nmap.org</code>
                                 <button class="copy-cmd-btn" data-target="cmdCurl">Copy</button>
@@ -430,7 +425,7 @@
                     </div>
                 </div>
 
-                <!-- Hardening Scripts Generator -->
+                <!-- Hardening Configurations -->
                 <div class="card">
                     <div class="card-header">
                         <span class="card-title">
@@ -438,16 +433,16 @@
                                 <polyline points="16 18 22 12 16 6"/>
                                 <polyline points="8 6 2 12 8 18"/>
                             </svg>
-                            Automated Server Hardening Snippets
+                            Server Hardening Configurations
                         </span>
                     </div>
                     <div class="tab-row">
-                        <button id="tabNginx" class="tab-btn active">Nginx Configuration</button>
-                        <button id="tabApache" class="tab-btn">Apache .htaccess</button>
-                        <button id="tabFirewall" class="tab-btn">UFW / Firewall Rules</button>
+                        <button id="tabNginx" class="tab-btn active">Nginx</button>
+                        <button id="tabApache" class="tab-btn">Apache</button>
+                        <button id="tabFirewall" class="tab-btn">UFW Firewall</button>
                     </div>
                     <div class="code-box">
-                        <pre id="codeDisplay" class="code-pre mono"># Launch scan to generate custom server security hardening scripts.</pre>
+                        <pre id="codeDisplay" class="code-pre mono"># Run a scan to generate target-specific server hardening configurations.</pre>
                     </div>
                 </div>
             </div>
@@ -455,6 +450,6 @@
     </div>
 
     <script src="auth.js"></script>
-    <script src="app.js?v=3.1"></script>
+    <script src="app.js?v=3.3"></script>
 </body>
 </html>

@@ -173,7 +173,7 @@ def handle_api_request(method: str, path: str, query_string: str, body_bytes: by
             "hostname": hostname,
             "ip": ip,
             "scan_mode": scan_mode,
-            "scan_profile_label": "🛡️ Full Audit (Enterprise Deep Scan)" if scan_mode == "full" else "⚡ Quick Scan (Surface Audit)",
+            "scan_profile_label": "Full Audit" if scan_mode == "full" else "Quick Scan",
             "audit_depth": {
                 "ports_checked": len(custom_ports) if custom_ports else (35 if scan_mode == "full" else 10),
                 "subdomains_checked": 38 if scan_mode == "full" else 12,

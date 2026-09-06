@@ -3,22 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vanguard Recon Pro — Target Scan History</title>
-    <meta name="description" content="Complete historical repository of target website scans and interactive executive report viewer.">
+    <title>Vanguard Recon — Scan History</title>
+    <meta name="description" content="Historical repository of target website scans and audit reports.">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <canvas id="bgCanvas"></canvas>
-
     <div id="toastNotification" class="toast-card">
         <span id="toastIcon">✓</span>
         <span id="toastMsg">Action completed successfully</span>
     </div>
 
-    <!-- Top Tactical Navigation Bar -->
+    <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-left">
             <div class="brand">
@@ -31,28 +29,22 @@
                 </div>
                 <div class="brand-text">
                     <span class="brand-title">VANGUARD RECON</span>
-                    <span class="brand-subtitle">CYBER AUDIT SUITE 3.0 PRO</span>
+                    <span class="brand-subtitle">Security Assessment Suite</span>
                 </div>
             </div>
             
             <div class="nav-links">
-                <a href="index.html" class="nav-link">📊 Dashboard</a>
-                <a href="attack.html" class="nav-link">🎯 Attack</a>
-                <a href="profile.html" class="nav-link">👤 Profile</a>
-                <a href="history.html" class="nav-link active">📜 History</a>
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="attack.html" class="nav-link">Scanner</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+                <a href="history.html" class="nav-link active">History</a>
             </div>
         </div>
 
         <div class="nav-right" id="navRightSection">
-            <div class="hud-clock mono" id="hudClock">12:00:00 UTC</div>
-            <button id="soundToggleBtn" class="hud-btn" title="Toggle Tactical Audio FX">
-                <span id="soundIcon">🔊</span>
-                <span id="soundText" style="font-size:11px;">AUDIO ON</span>
-            </button>
-
             <div class="status-badge">
                 <span class="pulse-dot"></span>
-                <span>SYSTEM ONLINE</span>
+                <span>Operational</span>
             </div>
         </div>
     </nav>
@@ -66,15 +58,15 @@
                         <circle cx="12" cy="12" r="10"/>
                         <polyline points="12 6 12 12 16 14"/>
                     </svg>
-                    Target Scan History Log (<span id="historyCountTotal">0</span> Target Audits)
+                    Scan History (<span id="historyCountTotal">0</span> Target Audits)
                 </span>
                 <a href="attack.html" class="btn-primary" style="font-size:12px; padding:6px 14px; text-decoration:none;">
-                    + Launch New Target Attack Scan
+                    + New Scan
                 </a>
             </div>
 
             <p style="font-size:13.5px; color:var(--text-secondary); margin-bottom:20px; line-height:1.5;">
-                Below is the historical record of target websites audited by Vanguard Recon. Click on any target entry or click <strong>View Report</strong> to load the full executive security audit report.
+                Historical record of previously audited targets. Click any entry to inspect its detailed security audit report.
             </p>
 
             <div style="overflow-x:auto;">
@@ -83,10 +75,10 @@
                         <tr>
                             <th>Target Host</th>
                             <th>Resolved IP</th>
-                            <th>Posture Score & Grade</th>
+                            <th>Score & Grade</th>
                             <th>Findings</th>
                             <th>Scan Timestamp</th>
-                            <th>Audit Report</th>
+                            <th>Report</th>
                         </tr>
                     </thead>
                     <tbody id="historyTableBody">

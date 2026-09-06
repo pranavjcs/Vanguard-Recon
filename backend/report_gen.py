@@ -203,11 +203,11 @@ def generate_html_report(scan_results):
     <div class="report-wrapper">
         <div class="report-header">
             <div>
-                <div class="brand">🛡️ VANGUARD RECON SUITE v3.0 PRO</div>
-                <div style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;">Executive Security Audit & Threat Intelligence Report</div>
+                <div class="brand">Vanguard Recon — Security Assessment</div>
+                <div style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;">Security Audit & Threat Intelligence Report</div>
             </div>
             <div style="text-align: right;" class="no-print">
-                <button onclick="window.print()" class="print-btn">🖨️ Print / Save PDF</button>
+                <button onclick="window.print()" class="print-btn">Print / Save PDF</button>
                 <div style="color: var(--text-secondary); font-size: 12px; margin-top: 8px;">Generated: {timestamp}</div>
             </div>
         </div>
@@ -233,7 +233,7 @@ def generate_html_report(scan_results):
                 </tr>
             </thead>
             <tbody>
-                {vuln_rows if vuln_rows else '<tr><td colspan="5" style="padding:16px; color:#4ade80; text-align:center;">✓ Zero security vulnerabilities identified.</td></tr>'}
+                {vuln_rows if vuln_rows else '<tr><td colspan="5" style="padding:16px; color:#4ade80; text-align:center;">Zero security vulnerabilities identified.</td></tr>'}
             </tbody>
         </table>
 

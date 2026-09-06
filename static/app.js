@@ -1,8 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Initialize Animated Black Sand Grains Particle Engine on Off-White Canvas
-    initBlackSandGrainsBackground();
-    initClockHUD();
-
     // Check localStorage for saved scan results & scan history list
     const savedScan = localStorage.getItem('vanguardScanData');
     if (savedScan) {
@@ -22,71 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderScanHistoryTable();
     initProfilePage();
 
-    // Sound FX Web Audio API Engine
-    let audioEnabled = true;
-    let audioCtx = null;
-
-    function getAudioContext() {
-        if (!audioCtx) {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            audioCtx = new AudioContext();
-        }
-        return audioCtx;
-    }
-
     function playSound(type) {
-        if (!audioEnabled) return;
-        try {
-            const ctx = getAudioContext();
-            if (ctx.state === 'suspended') ctx.resume();
-
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-
-            const now = ctx.currentTime;
-
-            if (type === 'click') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(800, now);
-                gain.gain.setValueAtTime(0.08, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-                osc.start(now);
-                osc.stop(now + 0.05);
-            } else if (type === 'scan') {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(300, now);
-                osc.frequency.exponentialRampToValueAtTime(900, now + 0.3);
-                gain.gain.setValueAtTime(0.12, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-                osc.start(now);
-                osc.stop(now + 0.3);
-            } else if (type === 'complete') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(523.25, now);
-                osc.frequency.setValueAtTime(659.25, now + 0.1);
-                osc.frequency.setValueAtTime(783.99, now + 0.2);
-                gain.gain.setValueAtTime(0.12, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-                osc.start(now);
-                osc.stop(now + 0.4);
-            }
-        } catch (e) {}
-    }
-
-    const soundToggleBtn = document.getElementById('soundToggleBtn');
-    const soundText = document.getElementById('soundText');
-    const soundIcon = document.getElementById('soundIcon');
-
-    if (soundToggleBtn) {
-        soundToggleBtn.addEventListener('click', () => {
-            audioEnabled = !audioEnabled;
-            if (soundText) soundText.innerText = audioEnabled ? 'AUDIO ON' : 'AUDIO OFF';
-            if (soundIcon) soundIcon.innerText = audioEnabled ? '🔊' : '🔇';
-            showToast(`Audio FX ${audioEnabled ? 'Enabled' : 'Muted'}`);
-            playSound('click');
-        });
+        // Audio effects disabled
     }
 
     // DOM Elements
@@ -126,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const icon = document.getElementById('toastIcon');
         const text = document.getElementById('toastMsg');
         if (!toast) return;
-        icon.innerText = isSuccess ? '✓' : '⚠️';
+        icon.innerText = isSuccess ? '✓' : '!';
         text.innerText = msg;
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 3000);
@@ -549,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (metaHost) metaHost.innerText = data.hostname;
         if (metaIp) metaIp.innerText = data.ip;
         if (metaMode) {
-            metaMode.innerText = data.scan_profile_label || (data.scan_mode === 'full' ? '🛡️ Full Audit' : '⚡ Quick Scan');
+            metaMode.innerText = data.scan_profile_label || (data.scan_mode === 'full' ? 'Full Audit' : 'Quick Scan');
             metaMode.style.color = data.scan_mode === 'full' ? 'var(--sev-high)' : 'var(--accent-blue)';
         }
         if (metaTime) metaTime.innerText = data.timestamp;
@@ -589,7 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (portsGrid) {
             portsGrid.innerHTML = '';
             if (!data.open_ports || data.open_ports.length === 0) {
-                portsGrid.innerHTML = '<div style="color:var(--text-muted); font-size:14px;">No open ports identified on standard TCP matrix.</div>';
+                portsGrid.innerHTML = '<div style="color:var(--text-muted); font-size:14px;">No open ports identified on standard scanned ports.</div>';
             } else {
                 data.open_ports.forEach(p => {
                     portsGrid.innerHTML += `
@@ -636,14 +569,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (vulns.length === 0) {
             vulnContainer.innerHTML = `
                 <div style="color:var(--sev-safe); padding:16px; background:var(--sev-safe-bg); border:1px solid rgba(22,163,74,0.3); border-radius:var(--radius-md); font-size:14px; font-weight:600;">
-                    ✓ Zero security vulnerabilities matching the selected filter severity level.
+                    No security vulnerabilities matching the selected filter severity level.
                 </div>
             `;
         } else {
             vulns.forEach((v, idx) => {
                 const verifyHtml = v.verification_steps ? `
                     <div style="font-size:12.5px; color:var(--text-secondary); background:rgba(0,0,0,0.03); border:1px solid var(--border-subtle); padding:12px 14px; border-radius:var(--radius-sm); margin-top:12px;">
-                        <strong>🔍 Defensive Audit Verification Method:</strong>
+                        <strong>Defensive Verification Method:</strong>
                         <div class="mono" style="font-size:11.5px; margin-top:6px; color:var(--text-primary); background:rgba(0,0,0,0.04); padding:8px 12px; border-radius:6px;">${v.verification_steps}</div>
                     </div>
                 ` : '';
@@ -656,7 +589,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span class="vuln-title">${v.title}</span>
                             <div style="display:flex; align-items:center; gap:10px;">
                                 <span class="badge-sev badge-${v.severity}">${v.severity}</span>
-                                <span style="font-size:12px; color:var(--text-muted); font-weight:700;" id="toggleIcon_${cardId}">▼ Expand</span>
+                                <span style="font-size:12px; color:var(--text-muted); font-weight:700;" id="toggleIcon_${cardId}">Expand</span>
                             </div>
                         </div>
                         <div class="vuln-desc">${v.impact}</div>
@@ -697,10 +630,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!el) return;
         if (el.style.display === 'none' || !el.style.display) {
             el.style.display = 'block';
-            if (icon) icon.innerText = '▲ Collapse';
+            if (icon) icon.innerText = 'Collapse';
         } else {
             el.style.display = 'none';
-            if (icon) icon.innerText = '▼ Expand';
+            if (icon) icon.innerText = 'Expand';
         }
     };
 
@@ -984,7 +917,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td style="font-size:12.5px; color:var(--text-muted);">${scan.timestamp}</td>
                 <td>
                     <button class="btn-secondary view-report-btn" data-index="${index}" style="font-size:11.5px; padding:4px 10px;">
-                        📄 View Report
+                        View Report
                     </button>
                 </td>
             `;
@@ -1023,7 +956,7 @@ document.addEventListener('DOMContentLoaded', () => {
             reportModal.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding-bottom:12px; border-bottom:2px solid var(--border-subtle);">
                     <h3 style="font-family:'Outfit', sans-serif; font-size:20px; font-weight:800;">Executive Security Audit — ${scanData.hostname}</h3>
-                    <button id="closeReportModalBtn" class="btn-secondary" style="padding:6px 14px;">✕ Close</button>
+                    <button id="closeReportModalBtn" class="btn-secondary" style="padding:6px 14px;">Close</button>
                 </div>
                 <iframe id="reportFrame" style="width:100%; height:70vh; border:1px solid var(--border-subtle); border-radius:8px;"></iframe>
             `;
@@ -1080,7 +1013,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (collegeBadgeEl) {
                 if (org && org.trim()) {
                     collegeBadgeEl.style.display = 'inline-block';
-                    collegeBadgeEl.innerText = `🏢 ${org.trim()}`;
+                    collegeBadgeEl.innerText = org.trim();
                 } else {
                     collegeBadgeEl.style.display = 'none';
                 }
@@ -1147,7 +1080,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } finally {
                 if (saveBtn) {
                     saveBtn.disabled = false;
-                    saveBtn.innerText = '💾 Save Profile Changes';
+                    saveBtn.innerText = 'Save Changes';
                 }
             }
         });
@@ -1194,7 +1127,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } finally {
                     if (changeBtn) {
                         changeBtn.disabled = false;
-                        changeBtn.innerText = '🔒 Update Password';
+                        changeBtn.innerText = 'Update Password';
                     }
                 }
             });
@@ -1320,7 +1253,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (sender === 'user') {
                 msgDiv.innerHTML = `<strong>You:</strong><br>${escapeHtml(htmlContent)}`;
             } else {
-                msgDiv.innerHTML = `<strong>✨ Vanguard Gemini Assistant:</strong><br>${formatMarkdown(htmlContent)}`;
+                msgDiv.innerHTML = `<strong>Remediation Assistant:</strong><br>${formatMarkdown(htmlContent)}`;
             }
             copilotChatStream.appendChild(msgDiv);
             copilotChatStream.scrollTop = copilotChatStream.scrollHeight;
@@ -1385,7 +1318,7 @@ document.addEventListener('DOMContentLoaded', () => {
             appendMessage('user', text);
             copilotInput.value = '';
 
-            const loadingMsg = appendMessage('bot', '<em>Thinking & consulting Gemini AI...</em>');
+            const loadingMsg = appendMessage('bot', '<em>Generating remediation guidance...</em>');
 
             try {
                 const authFetch = typeof VanguardAuth !== 'undefined' ? VanguardAuth.fetchWithAuth : fetch;
@@ -1404,11 +1337,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data && data.answer) {
                     appendMessage('bot', data.answer);
                 } else {
-                    appendMessage('bot', '⚠️ Error receiving response from Gemini Assistant. Please try again.');
+                    appendMessage('bot', 'Error receiving response from Remediation Assistant. Please try again.');
                 }
             } catch (err) {
                 loadingMsg.remove();
-                appendMessage('bot', '⚠️ Network error communicating with Gemini Assistant endpoint.');
+                appendMessage('bot', 'Network error communicating with Remediation Assistant endpoint.');
             }
         }
 

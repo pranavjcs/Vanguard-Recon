@@ -194,8 +194,7 @@ const VanguardAuth = (() => {
                     <span class="user-name-mini">${user.full_name || user.username}</span>
                 </a>
                 <button id="logoutNavBtn" class="hud-btn btn-logout" title="Sign Out">
-                    <span>🚪</span>
-                    <span style="font-size:11px;">LOGOUT</span>
+                    <span style="font-size:12px; font-weight:600;">Sign Out</span>
                 </button>
             `;
 
@@ -205,18 +204,18 @@ const VanguardAuth = (() => {
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    if (confirm('Are you sure you want to sign out of Vanguard Recon?')) {
+                    if (confirm('Are you sure you want to sign out?')) {
                         logout();
                     }
                 });
             }
         } else {
-            // Not logged in UI (e.g. if viewing public preview)
+            // Not logged in UI
             const loginLink = document.createElement('a');
             loginLink.href = 'login.html';
             loginLink.className = 'btn-primary';
             loginLink.style.cssText = 'padding:6px 14px; font-size:12px; text-decoration:none;';
-            loginLink.innerText = '🔐 Analyst Login';
+            loginLink.innerText = 'Sign In';
             rightSection.appendChild(loginLink);
         }
     }

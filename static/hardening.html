@@ -3,22 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vanguard Recon Pro — Server Hardening & CLI Commands</title>
-    <meta name="description" content="Automated server security hardening configuration generator and CLI pentest command generator.">
+    <title>Vanguard Recon — Hardening & Verification</title>
+    <meta name="description" content="Server security hardening configuration generator and CLI verification commands.">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <canvas id="bgCanvas"></canvas>
-
     <div id="toastNotification" class="toast-card">
         <span id="toastIcon">✓</span>
         <span id="toastMsg">Action completed successfully</span>
     </div>
 
-    <!-- Top Tactical Navigation Bar -->
+    <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-left">
             <div class="brand">
@@ -31,34 +29,28 @@
                 </div>
                 <div class="brand-text">
                     <span class="brand-title">VANGUARD RECON</span>
-                    <span class="brand-subtitle">CYBER AUDIT SUITE 3.0 PRO</span>
+                    <span class="brand-subtitle">Security Assessment Suite</span>
                 </div>
             </div>
             
             <div class="nav-links">
-                <a href="index.html" class="nav-link">📊 Dashboard</a>
-                <a href="topology.html" class="nav-link">🌐 Attack Surface</a>
-                <a href="threats.html" class="nav-link">🛡️ Threat Intel</a>
-                <a href="hardening.html" class="nav-link active">⚡ Hardening & CLI</a>
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="attack.html" class="nav-link">Scanner</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+                <a href="history.html" class="nav-link">History</a>
             </div>
         </div>
 
         <div class="nav-right" id="navRightSection">
-            <div class="hud-clock mono" id="hudClock">12:00:00 UTC</div>
-            <button id="soundToggleBtn" class="hud-btn" title="Toggle Tactical Audio FX">
-                <span id="soundIcon">🔊</span>
-                <span id="soundText" style="font-size:11px;">AUDIO ON</span>
-            </button>
-
             <div class="status-badge">
                 <span class="pulse-dot"></span>
-                <span>SYSTEM ONLINE</span>
+                <span>Operational</span>
             </div>
 
             <div id="exportBtnGroup" style="display:none; gap:8px;">
                 <button id="exportJsonBtn" class="btn-secondary" title="Export Raw JSON Data">JSON</button>
                 <button id="exportCsvBtn" class="btn-secondary" title="Export CSV Table">CSV</button>
-                <button id="reportBtn" class="btn-accent">Executive HTML Report</button>
+                <button id="reportBtn" class="btn-accent">Export Report</button>
             </div>
         </div>
     </nav>
@@ -69,13 +61,13 @@
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
                     <h2 style="font-family:'Outfit', sans-serif; font-size:22px; font-weight:800; color:var(--text-primary);">
-                        Server Hardening Snippets & CLI Pentest Commands
+                        Server Hardening & Verification
                     </h2>
                     <p style="font-size:13.5px; color:var(--text-secondary); margin-top:4px;">
-                        Automated production Nginx, Apache, and Firewall hardening rules tailored to target host scan findings.
+                        Production Nginx, Apache, and Firewall hardening rules tailored to target host scan findings.
                     </p>
                 </div>
-                <div class="mono" style="font-size:13px; color:var(--text-secondary);">Target: <span id="metaHost" style="color:var(--text-primary); font-weight:700;">scanme.nmap.org</span></div>
+                <div class="mono" style="font-size:13px; color:var(--text-secondary);">Target: <span id="metaHost" style="color:var(--text-primary); font-weight:600;">scanme.nmap.org</span></div>
             </div>
         </div>
 
@@ -87,22 +79,22 @@
                         <polyline points="4 17 10 11 4 5"/>
                         <line x1="12" y1="19" x2="20" y2="19"/>
                     </svg>
-                    Command Line Security Testing Tooling
+                    Verification Commands
                 </span>
             </div>
             <div class="cli-cmd-grid">
                 <div class="cli-cmd-item">
-                    <div class="cli-cmd-label">Nmap Port & Service Banner Audit</div>
+                    <div class="cli-cmd-label">Nmap Port & Service Audit</div>
                     <div class="cli-cmd-box">
                         <code id="cmdNmap" class="mono">nmap -sV -sC -p 80,443,22 scanme.nmap.org</code>
-                        <button class="copy-cmd-btn" data-target="cmdNmap">Copy Command</button>
+                        <button class="copy-cmd-btn" data-target="cmdNmap">Copy</button>
                     </div>
                 </div>
                 <div class="cli-cmd-item">
-                    <div class="cli-cmd-label">Curl Verbose Security Header Inspection</div>
+                    <div class="cli-cmd-label">Curl Header Inspection</div>
                     <div class="cli-cmd-box">
                         <code id="cmdCurl" class="mono">curl -I -v https://scanme.nmap.org</code>
-                        <button class="copy-cmd-btn" data-target="cmdCurl">Copy Command</button>
+                        <button class="copy-cmd-btn" data-target="cmdCurl">Copy</button>
                     </div>
                 </div>
             </div>
@@ -116,16 +108,16 @@
                         <polyline points="16 18 22 12 16 6"/>
                         <polyline points="8 6 2 12 8 18"/>
                     </svg>
-                    Automated Production Server Security Configuration Generator
+                    Server Hardening Configurations
                 </span>
             </div>
             <div class="tab-row">
-                <button id="tabNginx" class="tab-btn active">Nginx Configuration</button>
-                <button id="tabApache" class="tab-btn">Apache .htaccess</button>
-                <button id="tabFirewall" class="tab-btn">UFW / Firewall Rules</button>
+                <button id="tabNginx" class="tab-btn active">Nginx</button>
+                <button id="tabApache" class="tab-btn">Apache</button>
+                <button id="tabFirewall" class="tab-btn">UFW Firewall</button>
             </div>
             <div class="code-box">
-                <pre id="codeDisplay" class="code-pre mono"># Select or run a scan to inspect generated production server security configuration rules.</pre>
+                <pre id="codeDisplay" class="code-pre mono"># Run a scan to generate server security configuration rules.</pre>
             </div>
         </div>
     </div>
