@@ -6,6 +6,10 @@
       "dest": "api/index.py"
     },
     {
+      "src": "/(health|healthz)",
+      "dest": "api/index.py"
+    },
+    {
       "src": "/styles.css",
       "dest": "static/styles.css"
     },
