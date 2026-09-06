@@ -235,5 +235,48 @@ def handle_api_request(method: str, path: str, query_string: str, body_bytes: by
         res = query_gemini_assistant(query, context=context)
         return 200, cors_headers, json.dumps(res).encode("utf-8")
 
+    # ----------------------------------------------------
+    # STATIC ASSET & PAGE FALLBACK (For Serverless Environments like Vercel)
+    # ----------------------------------------------------
+    elif method == "GET":
+        import os
+        root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        candidate_dirs = [os.path.join(root_dir, "public"), os.path.join(root_dir, "static")]
+
+        req_path = parsed_path.lstrip("/")
+        if not req_path or req_path == "index.html":
+            target_filename = "index.html"
+        elif req_path in ["login", "attack", "profile", "history", "threats", "topology", "hardening"]:
+            target_filename = f"{req_path}.html"
+        else:
+            target_filename = req_path
+
+        mime_types = {
+            ".html": "text/html; charset=utf-8",
+            ".css": "text/css; charset=utf-8",
+            ".js": "application/javascript; charset=utf-8",
+            ".json": "application/json; charset=utf-8",
+            ".svg": "image/svg+xml",
+            ".png": "image/png",
+            ".ico": "image/x-icon"
+        }
+
+        ext = os.path.splitext(target_filename)[1].lower()
+        content_type = mime_types.get(ext, "text/plain")
+
+        for d in candidate_dirs:
+            file_path = os.path.join(d, target_filename)
+            if os.path.isfile(file_path):
+                try:
+                    with open(file_path, "rb") as f:
+                        file_bytes = f.read()
+                    res_headers = dict(cors_headers)
+                    res_headers["Content-Type"] = content_type
+                    return 200, res_headers, file_bytes
+                except Exception:
+                    pass
+
+        return 404, cors_headers, json.dumps({"success": False, "error": f"API endpoint not found: {method} {parsed_path}"}).encode("utf-8")
+
     else:
         return 404, cors_headers, json.dumps({"success": False, "error": f"API endpoint not found: {method} {parsed_path}"}).encode("utf-8")

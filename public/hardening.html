@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vanguard Recon — Hardening & Verification</title>
+    <meta name="description" content="Server security hardening configuration generator and CLI verification commands.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <canvas id="bgCanvas"></canvas>
+
+    <div id="toastNotification" class="toast-card">
+        <span id="toastIcon">✓</span>
+        <span id="toastMsg">Action completed successfully</span>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="brand">
+                <div class="brand-icon-wrapper">
+                    <div class="brand-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">VANGUARD RECON</span>
+                    <span class="brand-subtitle">Security Assessment Suite</span>
+                </div>
+            </div>
+            
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="attack.html" class="nav-link">Scanner</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+                <a href="history.html" class="nav-link">History</a>
+            </div>
+        </div>
+
+        <div class="nav-right" id="navRightSection">
+            <div class="status-badge">
+                <span class="pulse-dot"></span>
+                <span>Operational</span>
+            </div>
+
+            <div id="exportBtnGroup" style="display:none; gap:8px;">
+                <button id="exportJsonBtn" class="btn-secondary" title="Export Raw JSON Data">JSON</button>
+                <button id="exportCsvBtn" class="btn-secondary" title="Export CSV Table">CSV</button>
+                <button id="reportBtn" class="btn-accent">Export Report</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Header Banner -->
+        <div class="card" style="margin-bottom:28px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h2 style="font-family:'Outfit', sans-serif; font-size:22px; font-weight:800; color:var(--text-primary);">
+                        Server Hardening & Verification
+                    </h2>
+                    <p style="font-size:13.5px; color:var(--text-secondary); margin-top:4px;">
+                        Production Nginx, Apache, and Firewall hardening rules tailored to target host scan findings.
+                    </p>
+                </div>
+                <div class="mono" style="font-size:13px; color:var(--text-secondary);">Target: <span id="metaHost" style="color:var(--text-primary); font-weight:600;">scanme.nmap.org</span></div>
+            </div>
+        </div>
+
+        <!-- CLI Testing Commands Generator -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="4 17 10 11 4 5"/>
+                        <line x1="12" y1="19" x2="20" y2="19"/>
+                    </svg>
+                    Verification Commands
+                </span>
+            </div>
+            <div class="cli-cmd-grid">
+                <div class="cli-cmd-item">
+                    <div class="cli-cmd-label">Nmap Port & Service Audit</div>
+                    <div class="cli-cmd-box">
+                        <code id="cmdNmap" class="mono">nmap -sV -sC -p 80,443,22 scanme.nmap.org</code>
+                        <button class="copy-cmd-btn" data-target="cmdNmap">Copy</button>
+                    </div>
+                </div>
+                <div class="cli-cmd-item">
+                    <div class="cli-cmd-label">Curl Header Inspection</div>
+                    <div class="cli-cmd-box">
+                        <code id="cmdCurl" class="mono">curl -I -v https://scanme.nmap.org</code>
+                        <button class="copy-cmd-btn" data-target="cmdCurl">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hardening Config Snippets -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="16 18 22 12 16 6"/>
+                        <polyline points="8 6 2 12 8 18"/>
+                    </svg>
+                    Server Hardening Configurations
+                </span>
+            </div>
+            <div class="tab-row">
+                <button id="tabNginx" class="tab-btn active">Nginx</button>
+                <button id="tabApache" class="tab-btn">Apache</button>
+                <button id="tabFirewall" class="tab-btn">UFW Firewall</button>
+            </div>
+            <div class="code-box">
+                <pre id="codeDisplay" class="code-pre mono"># Run a scan to generate server security configuration rules.</pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vanguard Recon — Network Topology</title>
+    <meta name="description" content="Attack surface topology, open port enumeration, and subdomain mapping.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <canvas id="bgCanvas"></canvas>
+
+    <div id="toastNotification" class="toast-card">
+        <span id="toastIcon">✓</span>
+        <span id="toastMsg">Action completed successfully</span>
+    </div>
+
+    <!-- Node Popover Modal -->
+    <div id="nodeModal" class="node-modal">
+        <div class="node-modal-header">
+            <span id="nodeModalTitle" class="mono">Node Inspection</span>
+            <button id="closeNodeModal" class="close-modal-btn">✕</button>
+        </div>
+        <div id="nodeModalBody" class="node-modal-body"></div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="brand">
+                <div class="brand-icon-wrapper">
+                    <div class="brand-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">VANGUARD RECON</span>
+                    <span class="brand-subtitle">Security Assessment Suite</span>
+                </div>
+            </div>
+            
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="attack.html" class="nav-link">Scanner</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+                <a href="history.html" class="nav-link">History</a>
+            </div>
+        </div>
+
+        <div class="nav-right" id="navRightSection">
+            <div class="status-badge">
+                <span class="pulse-dot"></span>
+                <span>Operational</span>
+            </div>
+
+            <div id="exportBtnGroup" style="display:none; gap:8px;">
+                <button id="exportJsonBtn" class="btn-secondary" title="Export Raw JSON Data">JSON</button>
+                <button id="exportCsvBtn" class="btn-secondary" title="Export CSV Table">CSV</button>
+                <button id="reportBtn" class="btn-accent">Export Report</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Header Banner -->
+        <div class="card" style="margin-bottom:28px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h2 style="font-family:'Outfit', sans-serif; font-size:22px; font-weight:800; color:var(--text-primary);">
+                        Network Topology Mapping
+                    </h2>
+                    <p style="font-size:13.5px; color:var(--text-secondary); margin-top:4px;">
+                        Interactive network graph visualization of target host, IP, open ports, and discovered subdomains.
+                    </p>
+                </div>
+                <div style="display:flex; gap:12px; align-items:center;">
+                    <div class="mono" style="font-size:13px; color:var(--text-secondary);">Target: <span id="metaHost" style="color:var(--text-primary); font-weight:600;">scanme.nmap.org</span> (<span id="metaIp">45.33.32.156</span>)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Attack Surface Topology Graph -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="18" cy="5" r="3"/>
+                        <circle cx="6" cy="12" r="3"/>
+                        <circle cx="18" cy="19" r="3"/>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                    </svg>
+                    Network Topology Graph
+                </span>
+            </div>
+            <div class="topology-box">
+                <canvas id="topologyCanvas" width="1200" height="320"></canvas>
+            </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:28px;">
+            <!-- Open Ports Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 11a9 9 0 0 1 9 9"/>
+                            <path d="M4 4a16 16 0 0 1 16 16"/>
+                            <circle cx="5" cy="19" r="1"/>
+                        </svg>
+                        Open Ports & Services
+                    </span>
+                </div>
+                <div id="portsGrid" class="ports-grid">
+                    <div style="color:var(--text-secondary); font-size:14px;">No open port data available. Launch a scan on the dashboard.</div>
+                </div>
+            </div>
+
+            <!-- Subdomains & Tech Stack -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
+                            Discovered Subdomains
+                        </span>
+                    </div>
+                    <div id="subdomainsContainer" class="subdomains-grid">
+                        <div style="color:var(--text-secondary); font-size:14px;">No subdomain data available. Launch a scan on the dashboard.</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                                <polyline points="2 17 12 22 22 17"/>
+                                <polyline points="2 12 12 17 22 12"/>
+                            </svg>
+                            Detected Technologies
+                        </span>
+                    </div>
+                    <div id="techStackBadges" style="display:flex; flex-wrap:wrap; gap:8px;">
+                        <span class="subdomain-tag">Standard Web Server</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
