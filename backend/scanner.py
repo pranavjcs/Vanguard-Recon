@@ -150,7 +150,7 @@ def run_port_scan(ip, ports=None, hostname="", scan_mode="quick"):
 
     open_ports = []
     max_workers = 35 if scan_mode == "full" else 20
-    timeout = 2.0 if scan_mode == "full" else 1.5
+    timeout = 2.5 if scan_mode == "full" else 2.0
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {executor.submit(scan_single_port, ip, port, timeout, hostname): port for port in ports}
@@ -173,7 +173,7 @@ def check_subdomain(sub, domain):
 def enumerate_subdomains(hostname, scan_mode="quick"):
     """Multi-threaded DNS subdomain discovery tailored to Quick vs Full mode."""
     parts = hostname.split('.')
-    if len(parts) < 2:
+    if len(parts) < 2 or all(p.isdigit() for p in parts) or hostname in ["localhost", "127.0.0.1"]:
         return []
 
     base_domain = '.'.join(parts[-2:])

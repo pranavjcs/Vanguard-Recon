@@ -121,10 +121,10 @@ def handle_api_request(method: str, path: str, query_string: str, body_bytes: by
     # ----------------------------------------------------
     # GENERAL / SCANNING / REPORTING ENDPOINTS
     # ----------------------------------------------------
-    elif parsed_path == "/api/status" and method == "GET":
+    elif parsed_path in ["/api/status", "/api/health", "/health", "/healthz"] and method == "GET":
         res = {
-            "status": "ONLINE",
-            "version": "3.0-Hackathon-Pro",
+            "status": "healthy",
+            "version": "3.0.0",
             "timestamp": str(datetime.now()),
             "auth_enabled": True
         }
@@ -160,11 +160,37 @@ def handle_api_request(method: str, path: str, query_string: str, body_bytes: by
 
         open_ports = run_port_scan(ip, custom_ports, hostname=hostname, scan_mode=scan_mode)
         subdomains = enumerate_subdomains(hostname, scan_mode=scan_mode)
-        ssl_info = audit_ssl_tls(hostname)
 
-        target_url = f"https://{hostname}" if not target.startswith("http") else target
+        open_port_nums = [p["port"] for p in open_ports]
+        if not target.startswith("http://") and not target.startswith("https://"):
+            if 443 in open_port_nums:
+                target_url = f"https://{hostname}"
+            elif 80 in open_port_nums:
+                target_url = f"http://{hostname}"
+            else:
+                target_url = f"https://{hostname}"
+        else:
+            target_url = target
+
+        # Audit SSL only if port 443 is open or if ports weren't restricted
+        if 443 in open_port_nums or not custom_ports:
+            ssl_info = audit_ssl_tls(hostname)
+        else:
+            ssl_info = {
+                "status": "INACTIVE",
+                "version": "N/A",
+                "cipher": "N/A",
+                "cipher_strength": "NONE",
+                "subject_cn": hostname,
+                "issuer_o": "N/A",
+                "san_count": 0,
+                "issue_detected": True,
+                "details": "Port 443 (HTTPS) is not active on target host."
+            }
+
         header_audit = audit_http_headers(target_url, scan_mode=scan_mode)
-        sensitive_disc = scan_sensitive_files(target_url, scan_mode=scan_mode)
+        effective_url = header_audit.get("target_url", target_url)
+        sensitive_disc = scan_sensitive_files(effective_url, scan_mode=scan_mode)
         risk_eval = evaluate_owasp_risks(header_audit, sensitive_disc, open_ports, hostname=hostname, ssl_info=ssl_info, scan_mode=scan_mode)
 
         scan_output = {

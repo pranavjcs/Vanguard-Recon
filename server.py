@@ -46,6 +46,14 @@ class VanguardRequestHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         try:
             parsed = urllib.parse.urlparse(self.path)
+            if parsed.path in ["/health", "/healthz"]:
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(b'{"status":"healthy","version":"3.0.0"}')
+                return
+
             if parsed.path.startswith("/api/"):
                 status, headers, body = handle_api_request("GET", parsed.path, parsed.query, b"", dict(self.headers))
                 self.send_response(status)
@@ -55,8 +63,18 @@ class VanguardRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(body)
                 return
 
-            if parsed.path == "/":
-                self.path = "/index.html"
+            clean_routes = {
+                "/": "/index.html",
+                "/login": "/login.html",
+                "/attack": "/attack.html",
+                "/profile": "/profile.html",
+                "/history": "/history.html",
+                "/threats": "/threats.html",
+                "/topology": "/topology.html",
+                "/hardening": "/hardening.html",
+            }
+            if parsed.path in clean_routes:
+                self.path = clean_routes[parsed.path]
             return super().do_GET()
         except Exception as e:
             try:

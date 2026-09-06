@@ -333,6 +333,9 @@ def audit_http_headers(target_url, scan_mode="quick"):
             "tech_stack": tech_stack or ["Standard Web Server"]
         }
     except Exception as e:
+        if target_url.startswith("https://"):
+            fallback_url = "http://" + target_url[8:]
+            return audit_http_headers(fallback_url, scan_mode=scan_mode)
         return {
             "success": False,
             "target_url": target_url,
