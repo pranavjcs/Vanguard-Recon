@@ -51,7 +51,7 @@ class VanguardRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header('Content-Type', 'application/json')
                 self.send_header('Access-Control-Allow-Origin', '*')
                 self.end_headers()
-                self.wfile.write(b'{"status":"healthy","version":"3.0.0"}')
+                self.wfile.write(b'{"status":"healthy","version":"3.0.1"}')
                 return
 
             if parsed.path.startswith("/api/"):

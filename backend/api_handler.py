@@ -148,7 +148,7 @@ def handle_api_request(method: str, path: str, query_string: str, body_bytes: by
         supa_ok, supa_code, supa_msg = check_supabase_status()
         res = {
             "status": "healthy",
-            "version": "3.0.0",
+            "version": "3.0.1",
             "timestamp": str(datetime.now()),
             "auth_enabled": True,
             "supabase": {
