@@ -12,14 +12,20 @@ def get_supabase_config():
     url_aliases = [
         "SUPABASE_URL", "supabase_url",
         "NEXT_PUBLIC_SUPABASE_URL", "next_public_supabase_url",
-        "VITE_SUPABASE_URL"
+        "SUPABASE_PROJECT_URL", "supabase_project_url",
+        "SUPABASE_API_URL", "supabase_api_url",
+        "SUPABASE_ENDPOINT", "supabase_endpoint",
+        "VITE_SUPABASE_URL", "REACT_APP_SUPABASE_URL"
     ]
     key_aliases = [
         "SUPABASE_KEY", "supabase_key",
-        "SUPABASE_SERVICE_ROLE_KEY", "supabase_service_role_key",
         "SUPABASE_ANON_KEY", "supabase_anon_key",
         "NEXT_PUBLIC_SUPABASE_ANON_KEY", "next_public_supabase_anon_key",
-        "VITE_SUPABASE_ANON_KEY"
+        "SUPABASE_SERVICE_ROLE_KEY", "supabase_service_role_key",
+        "SUPABASE_API_KEY", "supabase_api_key",
+        "SUPABASE_SECRET_KEY", "supabase_secret_key",
+        "SUPABASE_SECRET", "supabase_secret",
+        "VITE_SUPABASE_ANON_KEY", "REACT_APP_SUPABASE_ANON_KEY"
     ]
 
     url = ""
@@ -77,6 +83,21 @@ def get_supabase_config():
 
     return url, key
 
+def get_detected_env_keys():
+    """List relevant environment variable names present in runtime without leaking secret values."""
+    found = []
+    keywords = ["SUPA", "POSTGRES", "DATABASE", "DB_"]
+    for k in os.environ.keys():
+        upper_k = k.upper()
+        if any(w in upper_k for w in keywords):
+            val = os.environ.get(k, "")
+            found.append({
+                "key": k,
+                "length": len(val),
+                "has_value": bool(val.strip())
+            })
+    return found
+
 def is_supabase_configured() -> bool:
     """Check if Supabase credentials are provided."""
     url, key = get_supabase_config()
@@ -86,7 +107,12 @@ def check_supabase_status():
     """Diagnose Supabase connection and public.users table status."""
     url, key = get_supabase_config()
     if not (url and key):
-        return False, "CREDENTIALS_MISSING", "SUPABASE_URL or SUPABASE_KEY is missing."
+        missing = []
+        if not url:
+            missing.append("SUPABASE_URL")
+        if not key:
+            missing.append("SUPABASE_KEY (or SUPABASE_ANON_KEY)")
+        return False, "CREDENTIALS_MISSING", f"{' and '.join(missing)} missing in environment variables."
 
     test_url = f"{url}/rest/v1/users?limit=1"
     headers = {
