@@ -20,6 +20,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderScanHistoryTable();
     initProfilePage();
+    initDashboardStats();
+
+    function initDashboardStats() {
+        const statScore = document.getElementById('statScore');
+        if (!statScore) return;
+        if (window.location.pathname.includes('attack.html') || window.location.href.includes('attack.html')) return;
+
+        let history = [];
+        try {
+            const raw = localStorage.getItem('vanguardScanHistory');
+            if (raw) history = JSON.parse(raw);
+        } catch(e) {}
+
+        if (history && history.length > 0) {
+            const latest = history[0];
+            statScore.innerText = `${latest.score} / 100`;
+            const statPorts = document.getElementById('statPorts');
+            const statVulns = document.getElementById('statVulns');
+            const statSsl = document.getElementById('statSsl');
+            if (statPorts) statPorts.innerText = (latest.open_ports || []).length;
+            if (statVulns) statVulns.innerText = (latest.vulnerabilities || []).length;
+            if (statSsl) statSsl.innerText = (latest.ssl && latest.ssl.version) ? latest.ssl.version : 'TLS Active';
+        }
+    }
 
     function playSound(type) {
         // Audio effects disabled
@@ -428,34 +452,28 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.fillText(categories[i], lx, ly);
         }
 
-        // Draw Score Polygon
-        ctx.beginPath();
-        for (let i = 0; i < numSides; i++) {
-            const angle = i * angleStep - Math.PI / 2;
-            const r = radius * scores[i];
-            const x = centerX + r * Math.cos(angle);
-            const y = centerY + r * Math.sin(angle);
-            if (i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
+        // Draw Score Polygon if scan data exists
+        if (data) {
+            ctx.beginPath();
+            for (let i = 0; i < numSides; i++) {
+                const angle = i * angleStep - Math.PI / 2;
+                const r = radius * scores[i];
+                const x = centerX + r * Math.cos(angle);
+                const y = centerY + r * Math.sin(angle);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(24, 24, 27, 0.18)';
+            ctx.fill();
+            ctx.strokeStyle = '#18181b';
+            ctx.lineWidth = 2;
+            ctx.stroke();
         }
-        ctx.closePath();
-        ctx.fillStyle = 'rgba(24, 24, 27, 0.18)';
-        ctx.fill();
-        ctx.strokeStyle = '#18181b';
-        ctx.lineWidth = 2;
-        ctx.stroke();
     }
 
     function initOWASPRadarChart() {
-        renderOWASPRadarChart({
-            headers: {
-                headers_found: {
-                    "Strict-Transport-Security": "max-age=31536000",
-                    "X-Frame-Options": "SAMEORIGIN",
-                    "Content-Security-Policy": "default-src 'self'"
-                }
-            }
-        });
+        renderOWASPRadarChart(null);
     }
 
     // Render Dashboard Results safely across any sub-page
@@ -1229,17 +1247,36 @@ document.addEventListener('DOMContentLoaded', () => {
         animateBlackSand();
     }
 
+    function renderTopologyEmptyState() {
+        const canvas = document.getElementById('topologyCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+        ctx.clearRect(0, 0, width, height);
+
+        const centerX = width / 2;
+        const centerY = height / 2;
+        ctx.strokeStyle = 'rgba(15, 23, 42, 0.08)';
+        ctx.lineWidth = 1;
+        [35, 75, 115].forEach(r => {
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, r, 0, Math.PI * 2);
+            ctx.stroke();
+        });
+
+        ctx.font = '500 13px "Plus Jakarta Sans", sans-serif';
+        ctx.fillStyle = '#64748b';
+        ctx.textAlign = 'center';
+        ctx.fillText('Awaiting scan to map network topology', centerX, centerY + 4);
+    }
+
     // Initial Topology canvas state
-    startTopologyAnimation({
-        hostname: 'scanme.nmap.org',
-        ip: '45.33.32.156',
-        open_ports: [
-            { port: 80, service: 'HTTP (Apache)', state: 'OPEN', banner: 'HTTP/1.1 200 OK' },
-            { port: 443, service: 'HTTPS (TLS)', state: 'OPEN', banner: 'HTTP/1.1 200 OK' },
-            { port: 22, service: 'SSH', state: 'OPEN', banner: 'SSH-2.0-OpenSSH' }
-        ],
-        subdomains: [{ subdomain: 'scanme.nmap.org', ip: '45.33.32.156' }]
-    });
+    if (currentScanData) {
+        startTopologyAnimation(currentScanData);
+    } else {
+        renderTopologyEmptyState();
+    }
 
     // 5. GOOGLE GEMINI AI ASSISTANT CONTROLLER
     function initGeminiAssistant() {

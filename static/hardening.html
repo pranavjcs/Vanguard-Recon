@@ -69,7 +69,7 @@
                         Production Nginx, Apache, and Firewall hardening rules tailored to target host scan findings.
                     </p>
                 </div>
-                <div class="mono" style="font-size:13px; color:var(--text-secondary);">Target: <span id="metaHost" style="color:var(--text-primary); font-weight:600;">scanme.nmap.org</span></div>
+                <div class="mono" style="font-size:13px; color:var(--text-secondary);">Target: <span id="metaHost" style="color:var(--text-primary); font-weight:600;">--</span></div>
             </div>
         </div>
 
@@ -88,14 +88,14 @@
                 <div class="cli-cmd-item">
                     <div class="cli-cmd-label">Nmap Port & Service Audit</div>
                     <div class="cli-cmd-box">
-                        <code id="cmdNmap" class="mono">nmap -sV -sC -p 80,443,22 scanme.nmap.org</code>
+                        <code id="cmdNmap" class="mono">nmap -sV -sC -p &lt;ports&gt; &lt;target&gt;</code>
                         <button class="copy-cmd-btn" data-target="cmdNmap">Copy</button>
                     </div>
                 </div>
                 <div class="cli-cmd-item">
                     <div class="cli-cmd-label">Curl Header Inspection</div>
                     <div class="cli-cmd-box">
-                        <code id="cmdCurl" class="mono">curl -I -v https://scanme.nmap.org</code>
+                        <code id="cmdCurl" class="mono">curl -I -v https://&lt;target&gt;</code>
                         <button class="copy-cmd-btn" data-target="cmdCurl">Copy</button>
                     </div>
                 </div>

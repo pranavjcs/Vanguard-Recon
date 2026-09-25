@@ -28,5 +28,15 @@
     "college": "College / University",
     "role": "Student Developer",
     "created_at": "2026-08-30 02:20:28"
+  },
+  "usr_e72b228a72": {
+    "id": "usr_e72b228a72",
+    "username": "jay2811",
+    "email": "pranavchavan2024.it@mmcoe.edu.in",
+    "password_hash": "7980a9bfaca68d37f6b83f1e1d38e894:db11cb439dd591c1852d13cda86cbb6a2941eb4a239d3ab2382c4ec380e568cb",
+    "full_name": "jay",
+    "college": "mmcoe",
+    "role": "student",
+    "created_at": "2026-09-25 14:02:20"
   }
 }

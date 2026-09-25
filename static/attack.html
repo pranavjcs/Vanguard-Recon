@@ -86,7 +86,7 @@
             
             <div class="input-wrapper">
                 <div class="input-container">
-                    <input type="text" id="targetInput" class="scan-input mono" placeholder="Enter target host (e.g. scanme.nmap.org or example.com)" value="scanme.nmap.org">
+                    <input type="text" id="targetInput" class="scan-input mono" placeholder="Enter target host or domain (e.g. example.com or 192.168.1.1)">
                     <div class="input-icon">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="11" cy="11" r="8"/>
@@ -100,14 +100,6 @@
                     </svg>
                     <span>Start Scan</span>
                 </button>
-            </div>
-
-            <div class="quick-targets">
-                <span style="font-weight:600; color:var(--text-secondary); font-size:12px;">Preset Targets:</span>
-                <span class="target-chip" data-target="scanme.nmap.org">scanme.nmap.org</span>
-                <span class="target-chip" data-target="httpbin.org">httpbin.org</span>
-                <span class="target-chip" data-target="example.com">example.com</span>
-                <span class="target-chip" data-target="github.com">github.com</span>
             </div>
 
             <!-- Progress Bar -->
@@ -131,7 +123,7 @@
                     </svg>
                 </div>
                 <div class="stat-content">
-                    <div id="statScore" class="stat-value">100 / 100</div>
+                    <div id="statScore" class="stat-value">--</div>
                     <div class="stat-label">Security Score</div>
                 </div>
             </div>
@@ -146,7 +138,7 @@
                     </svg>
                 </div>
                 <div class="stat-content">
-                    <div id="statPorts" class="stat-value">0</div>
+                    <div id="statPorts" class="stat-value">--</div>
                     <div class="stat-label">Open Ports</div>
                 </div>
             </div>
@@ -160,7 +152,7 @@
                     </svg>
                 </div>
                 <div class="stat-content">
-                    <div id="statVulns" class="stat-value">0</div>
+                    <div id="statVulns" class="stat-value">--</div>
                     <div class="stat-label">Vulnerabilities</div>
                 </div>
             </div>
@@ -173,7 +165,7 @@
                     </svg>
                 </div>
                 <div class="stat-content">
-                    <div id="statSsl" class="stat-value">TLSv1.3</div>
+                    <div id="statSsl" class="stat-value">--</div>
                     <div class="stat-label">SSL / TLS Protocol</div>
                 </div>
             </div>
@@ -198,30 +190,30 @@
                     <div class="gauge-container">
                         <svg class="gauge-svg" viewBox="0 0 160 160">
                             <circle class="gauge-bg" cx="80" cy="80" r="70"></circle>
-                            <circle id="gaugeFill" class="gauge-fill" cx="80" cy="80" r="70"></circle>
+                            <circle id="gaugeFill" class="gauge-fill" cx="80" cy="80" r="70" style="stroke-dashoffset: 440;"></circle>
                         </svg>
                         <div class="gauge-center">
-                            <div id="gradeCircle" class="gauge-grade">A+</div>
-                            <div id="scoreNum" class="gauge-score">100/100</div>
+                            <div id="gradeCircle" class="gauge-grade">--</div>
+                            <div id="scoreNum" class="gauge-score">--</div>
                         </div>
                     </div>
 
                     <ul class="info-list">
                         <li class="info-item">
                             <span class="info-label">Target Host</span>
-                            <span id="metaHost" class="info-val mono">scanme.nmap.org</span>
+                            <span id="metaHost" class="info-val mono">--</span>
                         </li>
                         <li class="info-item">
                             <span class="info-label">IP Address</span>
-                            <span id="metaIp" class="info-val mono">45.33.32.156</span>
+                            <span id="metaIp" class="info-val mono">--</span>
                         </li>
                         <li class="info-item">
                             <span class="info-label">Audit Profile</span>
-                            <span id="metaMode" class="info-val" style="font-weight:600; color:var(--text-primary);">Quick Scan</span>
+                            <span id="metaMode" class="info-val" style="font-weight:600; color:var(--text-primary);">--</span>
                         </li>
                         <li class="info-item">
                             <span class="info-label">Scan Timestamp</span>
-                            <span id="metaTime" class="info-val">Ready</span>
+                            <span id="metaTime" class="info-val">Awaiting scan</span>
                         </li>
                     </ul>
                 </div>
@@ -363,41 +355,6 @@
                     </div>
                 </div>
 
-                <!-- Remediation Assistant -->
-                <div class="card" id="copilotCard">
-                    <div class="card-header">
-                        <span class="card-title">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <path d="M12 8v8M8 12h8"/>
-                            </svg>
-                            Remediation Assistant
-                        </span>
-                    </div>
-                    
-                    <!-- Quick Prompt Suggestion Chips -->
-                    <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;">
-                        <button class="copilot-chip-btn" data-query="How to fix missing HSTS header?">Fix HSTS Header</button>
-                        <button class="copilot-chip-btn" data-query="How to configure strict Content Security Policy (CSP)?">Configure CSP</button>
-                        <button class="copilot-chip-btn" data-query="How to patch Log4j vulnerability?">Patch Log4j</button>
-                        <button class="copilot-chip-btn" data-query="How to configure UFW firewall to close open ports?">Configure Firewall</button>
-                    </div>
-
-                    <!-- Chat Log Area -->
-                    <div id="copilotChatStream" style="max-height:500px; min-height:180px; overflow-y:auto; border:1px solid var(--border-subtle); border-radius:8px; padding:16px; background:rgba(255,255,255,0.7); display:flex; flex-direction:column; gap:12px; margin-bottom:12px;">
-                        <div class="copilot-msg bot">
-                            <strong>Remediation Assistant:</strong><br>
-                            Enter a question or select a topic above to view step-by-step remediation instructions, configuration snippets, and verification commands.
-                        </div>
-                    </div>
-
-                    <!-- Interactive Chat Input Bar -->
-                    <div style="display:flex; gap:8px;">
-                        <input type="text" id="copilotInput" class="scan-input mono" placeholder="Ask for remediation instructions, configurations, or CLI commands..." style="padding:10px 14px; font-size:13px; flex:1;">
-                        <button id="sendCopilotBtn" class="btn-primary" style="padding:10px 18px; font-size:13px;">Send</button>
-                    </div>
-                </div>
-
                 <!-- Verification Commands -->
                 <div class="card">
                     <div class="card-header">
@@ -413,14 +370,14 @@
                         <div class="cli-cmd-item">
                             <div class="cli-cmd-label">Nmap Port & Service Audit</div>
                             <div class="cli-cmd-box">
-                                <code id="cmdNmap" class="mono">nmap -sV -sC -p 80,443,22 scanme.nmap.org</code>
+                                <code id="cmdNmap" class="mono">nmap -sV -sC -p &lt;ports&gt; &lt;target&gt;</code>
                                 <button class="copy-cmd-btn" data-target="cmdNmap">Copy</button>
                             </div>
                         </div>
                         <div class="cli-cmd-item">
                             <div class="cli-cmd-label">Curl Header Inspection</div>
                             <div class="cli-cmd-box">
-                                <code id="cmdCurl" class="mono">curl -I -v https://scanme.nmap.org</code>
+                                <code id="cmdCurl" class="mono">curl -I -v https://&lt;target&gt;</code>
                                 <button class="copy-cmd-btn" data-target="cmdCurl">Copy</button>
                             </div>
                         </div>
