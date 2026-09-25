@@ -14,6 +14,7 @@ from backend.auth import (
     change_password,
     verify_jwt
 )
+from backend.supabase_db import check_supabase_status, is_supabase_configured
 
 def extract_auth_token(headers: dict) -> str:
     """Extract Bearer token from headers dict (case-insensitive)."""
@@ -143,12 +144,19 @@ def handle_api_request(method: str, path: str, query_string: str, body_bytes: by
     # ----------------------------------------------------
     # GENERAL / SCANNING / REPORTING ENDPOINTS
     # ----------------------------------------------------
-    elif parsed_path in ["/api/status", "/api/health", "/health", "/healthz"] and method == "GET":
+    elif parsed_path in ["/api/status", "/api/health", "/health", "/healthz", "/api/auth/status"] and method == "GET":
+        supa_ok, supa_code, supa_msg = check_supabase_status()
         res = {
             "status": "healthy",
             "version": "3.0.0",
             "timestamp": str(datetime.now()),
-            "auth_enabled": True
+            "auth_enabled": True,
+            "supabase": {
+                "configured": is_supabase_configured(),
+                "connected": supa_ok,
+                "status": supa_code,
+                "message": supa_msg
+            }
         }
         return 200, cors_headers, json.dumps(res).encode("utf-8")
 

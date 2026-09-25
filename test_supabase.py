@@ -4,6 +4,8 @@ import urllib.error
 import urllib.parse
 import time
 import uuid
+import sys
+import os
 
 from backend.supabase_db import get_supabase_config, is_supabase_configured, _supabase_request
 from backend.auth import authenticate_user, register_user, find_user_by_identifier
@@ -12,15 +14,23 @@ print('=' * 60)
 print(' VANGUARD RECON — SUPABASE INTEGRATION TEST SUITE')
 print('=' * 60)
 
+# Allow passing credentials via command line arguments
+if len(sys.argv) >= 3:
+    os.environ['SUPABASE_URL'] = sys.argv[1].strip()
+    os.environ['SUPABASE_KEY'] = sys.argv[2].strip()
+
 # TEST 1: Config Check
 url, key = get_supabase_config()
 print('\n[TEST 1] Configuration Check:')
-print(f' - URL Loaded: {url}')
+print(f' - URL Loaded: {url or "[NOT SET]"}')
 print(f' - Key Loaded: {"YES (" + key[:12] + "...)" if key else "NO"}')
 print(f' - is_supabase_configured(): {is_supabase_configured()}')
 
 if not (url and key):
-    print('[FAIL] Supabase credentials missing!')
+    print('\n[FAIL] Supabase credentials missing!')
+    print('You can run this test by passing credentials directly:')
+    print('  python test_supabase.py <SUPABASE_URL> <SUPABASE_KEY>')
+    print('Or by adding them to .env or config.json.')
     exit(1)
 
 # TEST 2: Direct REST Ping

@@ -1,4 +1,4 @@
-﻿-- ========================================================
+-- ========================================================
 -- Vanguard Recon — Supabase Database Schema
 -- ========================================================
 -- Run this script in your Supabase SQL Editor:
@@ -24,13 +24,16 @@ CREATE INDEX IF NOT EXISTS idx_users_email ON public.users (email);
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 
 -- Allow anon and authenticated clients to read/insert/update user records
+DROP POLICY IF EXISTS "Allow public read access" ON public.users;
 CREATE POLICY "Allow public read access" ON public.users FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Allow public insert access" ON public.users;
 CREATE POLICY "Allow public insert access" ON public.users FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public update access" ON public.users;
 CREATE POLICY "Allow public update access" ON public.users FOR UPDATE USING (true);
 
--- 4. Seed Default Accounts
--- Default Student: username=student, password=student123
--- Default Admin: username=admin, password=admin123
+-- 4. Seed Default & Registered Accounts
 INSERT INTO public.users (id, username, email, password_hash, full_name, college, role, created_at)
 VALUES 
 (
@@ -51,6 +54,26 @@ VALUES
     'Lead Security Analyst',
     'Vanguard Defense Labs',
     'Lead Security Analyst (Admin)',
+    NOW()
+),
+(
+    'usr_d1d458cbcf',
+    'pjc',
+    'chavanpranav2024@gmaill.com',
+    'dd632b94e27a0c078ce57312b1602aa9:4c967a61331cecdb43d425df5f8b591674e90d69e127caa05fccc46827690891',
+    'Pranav Chavan',
+    'MMCOE College',
+    'Student Developer',
+    NOW()
+),
+(
+    'usr_e72b228a72',
+    'jay2811',
+    'pranavchavan2024.it@mmcoe.edu.in',
+    '7980a9bfaca68d37f6b83f1e1d38e894:db11cb439dd591c1852d13cda86cbb6a2941eb4a239d3ab2382c4ec380e568cb',
+    'jay',
+    'mmcoe',
+    'student',
     NOW()
 )
 ON CONFLICT (id) DO NOTHING;

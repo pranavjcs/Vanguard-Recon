@@ -18,6 +18,10 @@ from backend.supabase_db import (
 JWT_SECRET = os.environ.get("JWT_SECRET", "vanguard_student_security_jwt_secret_2026")
 TOKEN_EXPIRY_SECONDS = 30 * 24 * 3600  # 30 days persistent session
 
+def get_bundled_users_path():
+    """Get path to the static bundled data/users.json file."""
+    return os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "users.json")
+
 def get_storage_path():
     """Determine writable file path for users storage."""
     local_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
@@ -121,13 +125,35 @@ DEFAULT_USERS = {
 _users_cache = None
 
 def load_local_users():
-    """Load users from storage with in-memory fallback."""
+    """Load users from storage with bundled file seeding and memory fallback."""
     global _users_cache
     if _users_cache is not None:
         return _users_cache
 
     loaded = {}
-    if os.path.exists(USERS_FILE):
+
+    # 1. First, seed from bundled data/users.json if it exists (read-only package)
+    bundled_file = get_bundled_users_path()
+    if os.path.exists(bundled_file):
+        try:
+            with open(bundled_file, "r", encoding="utf-8") as f:
+                raw_users = json.load(f)
+                for uid, u in raw_users.items():
+                    loaded[uid] = {
+                        "id": u.get("id", uid),
+                        "username": u.get("username", ""),
+                        "email": u.get("email", ""),
+                        "password_hash": u.get("password_hash", ""),
+                        "full_name": u.get("full_name", u.get("username", "")),
+                        "college": u.get("college", u.get("organization", "University / College")),
+                        "role": u.get("role", "Student Developer"),
+                        "created_at": u.get("created_at", time.strftime("%Y-%m-%d %H:%M:%S"))
+                    }
+        except Exception as e:
+            print(f"[Local Users] Error reading bundled file: {e}")
+
+    # 2. Next, merge with writable USERS_FILE if separate (e.g. /tmp/vanguard_users.json)
+    if os.path.exists(USERS_FILE) and os.path.abspath(USERS_FILE) != os.path.abspath(bundled_file):
         try:
             with open(USERS_FILE, "r", encoding="utf-8") as f:
                 raw_users = json.load(f)
@@ -142,9 +168,10 @@ def load_local_users():
                         "role": u.get("role", "Student Developer"),
                         "created_at": u.get("created_at", time.strftime("%Y-%m-%d %H:%M:%S"))
                     }
-        except Exception:
-            loaded = {}
+        except Exception as e:
+            print(f"[Local Users] Error reading storage file: {e}")
 
+    # 3. Always ensure DEFAULT_USERS are present
     for k, v in DEFAULT_USERS.items():
         if k not in loaded:
             loaded[k] = v
@@ -164,7 +191,8 @@ def save_local_users(users):
         with open(storage_path, "w", encoding="utf-8") as f:
             json.dump(users, f, indent=2)
         return True
-    except Exception:
+    except Exception as e:
+        print(f"[Local Users] Notice: Read-only storage fallback: {e}")
         return True
 
 def sanitize_user(user: dict) -> dict:
@@ -271,6 +299,10 @@ def register_user(username: str, email: str, password: str, full_name: str = Non
         created = supabase_create_user(new_user)
         if created:
             new_user = created
+        else:
+            print(f"[AUTH ERROR] Failed to store user '{username}' in Supabase database! Verify table exists and RLS policy allows insert.")
+    elif USERS_FILE.startswith("/tmp"):
+        print(f"[AUTH WARNING] Serverless mode without Supabase: User '{username}' stored in ephemeral /tmp. Configure SUPABASE_URL and SUPABASE_KEY to persist across cold starts.")
 
     # Always save locally as well
     local_users = load_local_users()
@@ -304,7 +336,17 @@ def get_current_user_from_token(token: str):
     user_id = result.get("user_id")
     user = find_user_by_id(user_id)
     if not user:
-        return False, "User not found"
+        # Fallback to authentic claims inside the cryptographically verified JWT token.
+        # This prevents session invalidation on serverless cold starts.
+        return True, {
+            "id": user_id,
+            "username": result.get("username", "Analyst"),
+            "email": result.get("email", ""),
+            "full_name": result.get("username", "Analyst"),
+            "college": result.get("college", "College / University"),
+            "role": result.get("role", "Student Developer"),
+            "created_at": ""
+        }
 
     return True, sanitize_user(user)
 
